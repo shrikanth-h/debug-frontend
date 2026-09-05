@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DevTools CSS Debugging Lab — Part 3 hands-on (v2)</title>
+
+<style>
+/* ============================================================
+   PAGE CHROME  (not part of the lessons — ignore while inspecting)
+   ============================================================ */
+:root{
+  --paper:#FDFAF2; --ink:#1A1714; --ink2:#4A443C; --ink3:#8C8478;
+  --hi:#FFE873; --line:#DED5C2;
+  --blue:#2F6FE0; --green:#2E9E63; --red:#D94B3C;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:960px;margin:0 auto;padding:40px 24px 120px}
+header h1{font-size:34px;line-height:1.15;margin:0 0 8px;letter-spacing:-.02em}
+header p{color:var(--ink2);margin:0 0 6px}
+header .note{font-size:14px;color:var(--ink3)}
+.ver{display:inline-block;font:700 12px/1 ui-monospace,monospace;background:var(--green);
+  color:#fff;padding:5px 9px;border-radius:5px;margin-bottom:14px;letter-spacing:.08em}
+
+section{border-top:2px solid var(--line);margin-top:38px;padding-top:26px}
+h2{font-size:22px;margin:0 0 4px;letter-spacing:-.01em}
+h2 .num{font:700 13px/1 ui-monospace,monospace;background:var(--ink);color:var(--paper);
+  padding:5px 8px;border-radius:5px;margin-right:10px;vertical-align:3px}
+h2 .new{background:var(--red)}
+.sub{color:var(--ink3);font-size:15px;margin:0 0 16px}
+
+.try{background:#FFF8DC;border-left:5px solid var(--hi);padding:12px 16px;margin:16px 0;
+  border-radius:0 8px 8px 0;font-size:15px}
+.try b.h{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:6px}
+.try ol{margin:0;padding-left:20px}
+.try li{margin:4px 0}
+code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;
+  background:#EFEAD9;padding:1px 5px;border-radius:4px}
+.answer{font-size:14px;color:var(--ink2);margin-top:10px}
+.answer b{color:var(--ink)}
+.where{font-size:13px;color:var(--ink3);margin-top:8px}
+.where b{color:var(--ink2)}
+.demo{border:2px dashed var(--line);border-radius:10px;padding:20px;margin:14px 0;background:#fff}
+
+/* ============ 01 STYLES PANE ============ */
+.sp-card{background:#EAF1FE;border:3px solid var(--blue);border-radius:12px;
+  padding:20px;color:#123;font-weight:600}
+
+/* ============ 02 CASCADE & SPECIFICITY ============ */
+button.spec  { color:#777;    }   /* 0,0,1 */
+.spec-btn    { color:#1d4ed8; }   /* 0,1,0 */
+#spec-target { color:#0ea5e9; }   /* 1,0,0  <- wins */
+.spec-shell button{font-size:19px;font-weight:700;background:#fff;
+  border:2px solid var(--line);border-radius:8px;padding:10px 18px;cursor:pointer}
+
+/* ============ 03 INHERITANCE ============ */
+.inherit-parent{color:#1e293b;font-family:Georgia,"Times New Roman",serif;font-style:italic;
+  border:2px solid var(--line);border-radius:10px;padding:16px}
+/* .inherit-child declares NOTHING — on purpose */
+
+/* ============ 04 COMPUTED ============ */
+.computed-box{font-size:1.25rem;width:60%;padding:0.75em;margin-top:2ch;line-height:1.6;
+  border:1px solid var(--blue);border-radius:8px;background:#F3F7FF}
+
+/* ============ 05 BOX MODEL ============ */
+.boxmodel{width:260px;height:90px;margin:24px 40px 16px 8px;border:6px solid var(--green);
+  padding:12px 28px;background:#E8F6EE;border-radius:6px}
+
+/* ============ 06 FLEXBOX ============ */
+.flex-demo{display:flex;flex-direction:row;flex-wrap:nowrap;justify-content:space-between;
+  align-items:center;gap:16px;min-height:110px;
+  background:#F5F1FF;border:2px solid #7C5BC4;border-radius:10px;padding:14px}
+.flex-demo > div{background:#fff;border:2px solid #7C5BC4;border-radius:8px;
+  padding:14px 22px;font-weight:700}
+.flex-demo > .tall{padding-block:32px}
+
+/* ============ 07 GRID ============ */
+.grid-demo{display:grid;grid-template-columns:150px 1fr 120px;grid-template-rows:60px 1fr 50px;
+  grid-template-areas:"head head head" "side main aside" "foot foot foot";
+  gap:12px 16px;min-height:260px;
+  background:#FFF4E8;border:2px solid #E08A2E;border-radius:10px;padding:14px}
+.grid-demo > *{background:#fff;border:2px solid #E08A2E;border-radius:8px;
+  display:grid;place-items:center;font-weight:700}
+.g-head{grid-area:head} .g-side{grid-area:side}
+.g-main{grid-area:main} .g-aside{grid-area:aside} .g-foot{grid-area:foot}
+
+/* ============ 08 FORCE ELEMENT STATE ============ */
+.state-btn{font-size:18px;font-weight:700;padding:12px 26px;border-radius:8px;
+  border:3px solid var(--blue);background:#fff;color:var(--blue);cursor:pointer;
+  transition:background .15s ease}
+.state-btn:hover        { background:#E3ECFD; }
+.state-btn:focus-visible{ outline:4px solid #F59E0B; outline-offset:3px; }
+.state-btn:active       { background:var(--blue); color:#fff; }
+
+/* ============ 09 CSS VARIABLES ============ */
+:root{ --brand-color:#2563eb; --brand-radius:10px; }
+.var-good{background:var(--brand-color);border-radius:var(--brand-radius);
+  color:#fff;padding:16px;font-weight:700}
+.var-typo{ /* misspelled --brand-colour. No error. The fallback just wins. */
+  background:var(--brand-colour,#9ca3af);border-radius:var(--brand-radius);
+  color:#fff;padding:16px;font-weight:700;margin-top:10px}
+
+/* ============ 10 MEDIA QUERIES ============ */
+.mq-box{padding:18px;border-radius:10px;font-weight:700;
+  background:#E8F6EE;border:2px solid var(--green)}
+.mq-box::after{content:"Desktop  (>= 1200px)"}
+@media (max-width:1199px){
+  .mq-box{background:#FFF4E8;border-color:#E08A2E}
+  .mq-box::after{content:"Tablet  (768 - 1199px)"}
+}
+@media (max-width:767px){
+  .mq-box{background:#FDE8E8;border-color:var(--red)}
+  .mq-box::after{content:"Mobile  (<= 767px)"}
+}
+@media (prefers-reduced-motion:reduce){ .anim-spinner{animation:none !important} }
+
+/* ============ 11 ANIMATIONS ============ */
+@keyframes drift{
+  0%  {transform:translateX(0)     rotate(0deg);   background:#2F6FE0}
+  50% {transform:translateX(220px) rotate(180deg); background:#D9607A}
+  100%{transform:translateX(0)     rotate(360deg); background:#2F6FE0}
+}
+.anim-spinner{width:70px;height:70px;border-radius:14px;
+  animation:drift 4s ease-in-out infinite}
+
+/* ============ 12 CSS OVERVIEW ============ */
+/* (a) contrast failure */
+.low-contrast{color:#b9b9b9;background:#fff;padding:12px;font-size:15px}
+/* (b) REAL unused declarations: width/height/margin-top do not apply
+       to a non-replaced inline element. This is what CSS Overview reports. */
+.inline-unused{display:inline;width:220px;height:60px;margin-top:40px;
+  background:#FDE8E8;padding:2px 6px}
+/* (c) rules that match nothing — these are for the COVERAGE panel, not CSS Overview */
+.never-matched-alpha{color:#111}
+.never-matched-beta {margin:0}
+.never-matched-gamma{display:block}
+
+/* ============ 13 @LAYER ============ */
+@layer base, utilities;
+@layer base      { #layer-target { color:#D94B3C; } }   /* 1,0,0 */
+@layer utilities { .layer-box p  { color:#2E9E63; } }   /* 0,1,1 — later layer wins */
+.layer-unlayered { color:#7C5BC4; }                     /* unlayered beats all layers */
+.layer-box{border:2px solid var(--line);border-radius:10px;padding:16px;background:#fff}
+.layer-box p{font-weight:700;margin:6px 0}
+
+/* ============ 14 STACKING CONTEXT ============
+   FIXED in v2. Exactly ONE property creates the stacking context, so
+   unchecking that one property visibly fixes the bug.
+   (v1 wrongly stacked transform + position + z-index on the same element,
+    so unchecking any single one changed nothing.)                        */
+.sc-stage{position:relative;height:170px;background:#F7F4EC;
+  border:2px solid var(--line);border-radius:10px;overflow:hidden}
+.sc-parent{
+  opacity:0.99;              /* <-- the ONLY cause. Untick this one line. */
+}
+.sc-child{position:absolute;top:24px;left:24px;z-index:9999;
+  width:210px;padding:16px;border-radius:8px;background:var(--red);color:#fff;font-weight:700}
+.sc-sibling{position:absolute;top:64px;left:130px;z-index:2;
+  width:230px;padding:16px;border-radius:8px;background:var(--green);color:#fff;font-weight:700}
+
+/* ============ 15 CONTAINER QUERIES ============ */
+.cq-container{container-type:inline-size;container-name:card;
+  resize:horizontal;overflow:auto;width:320px;min-width:180px;max-width:100%;
+  border:2px dashed var(--blue);border-radius:10px;padding:12px;background:#fff}
+.cq-item{padding:16px;border-radius:8px;background:#EEE;font-weight:700}
+.cq-item::after{content:" — narrow container"}
+@container card (min-width:420px){
+  .cq-item{background:var(--green);color:#fff}
+  .cq-item::after{content:" — wide container (@container matched)"}
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<header>
+  <span class="ver">V2 — CORRECTED</span>
+  <h1>DevTools CSS Debugging Lab</h1>
+  <p>A minimal reproduction for every card in Part 3, plus the three additions from the comments.</p>
+  <p class="note">Open DevTools (F12) and work down the page. Every section is built so the feature
+     you are looking for is actually present — which is the thing a real production site cannot promise.</p>
+</header>
+
+<!-- 01 -->
+<section>
+  <h2><span class="num">01</span>Styles pane</h2>
+  <p class="sub">Every matched rule, editable in place.</p>
+  <div class="demo"><div class="sp-card" id="sp-card">Inspect me.</div></div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Right-click the blue card &rarr; <b>Inspect</b>.</li>
+      <li>In <b>Styles</b>, hover a declaration — a checkbox appears to its left. Untick <code>border</code>.</li>
+      <li>Click the <code>#EAF1FE</code> swatch and drag inside the colour picker; the page updates live.</li>
+      <li>Click any numeric value and press <b>&uarr;</b>/<b>&darr;</b> to step it. <b>Shift+&uarr;</b> steps by 10.</li>
+    </ol>
+  </div>
+  <p class="where"><b>Where:</b> Elements &rarr; Styles.</p>
+</section>
+
+<!-- 02 -->
+<section>
+  <h2><span class="num">02</span>Cascade &amp; specificity</h2>
+  <p class="sub">Three rules set <code>color</code> on one button. Two lose.</p>
+  <div class="demo spec-shell">
+    <button class="spec spec-btn" id="spec-target">Who wins?</button>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Inspect the button. Read the Styles pane <b>top to bottom</b> — that is cascade order, winner first.</li>
+      <li>Find the two struck-through <code>color</code> declarations.</li>
+      <li>Untick the winning <code>#spec-target</code> rule; the next one down comes alive. Untick that too
+          and the grey type selector finally applies.</li>
+      <li>Click the source link on the right of any rule to jump to it in <b>Sources</b>.</li>
+    </ol>
+  </div>
+  <p class="answer"><b>Answer:</b> <code>#spec-target</code> (1,0,0) beats <code>.spec-btn</code> (0,1,0)
+     beats <code>button.spec</code> (0,0,1). Source order never enters into it — specificity settles it first.</p>
+  <p class="where"><b>Where:</b> Elements &rarr; Styles.</p>
+</section>
+
+<!-- 03 -->
+<section>
+  <h2><span class="num">03</span>Inheritance</h2>
+  <p class="sub">The child declares nothing. It still has a colour and a font.</p>
+  <div class="demo">
+    <div class="inherit-parent">
+      I am the parent and I set color, font-family and font-style.
+      <p class="inherit-child">I am the child. I declare <b>nothing</b>. Inspect me.</p>
+    </div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Inspect the child paragraph.</li>
+      <li>Scroll the Styles pane down to the <b>Inherited from div.inherit-parent</b> section.</li>
+      <li>Note what appears there and what does not. The parent also sets <code>border</code> and
+          <code>padding</code>, but those are not inheritable, so they never show up.</li>
+    </ol>
+  </div>
+  <p class="answer"><b>The point:</b> you never write <code>color: inherit</code> for this to happen.
+     Inheritance is the default for text-ish properties; the <code>inherit</code> keyword is for forcing
+     the ones that <em>aren't</em>.</p>
+  <p class="where"><b>Where:</b> Elements &rarr; Styles, below the element's own rules.</p>
+</section>
+
+<!-- 04 -->
+<section>
+  <h2><span class="num">04</span>Computed styles</h2>
+  <p class="sub">rem, %, em and ch go in. Pixels come out.</p>
+  <div class="demo"><div class="computed-box">Every length on me is relative.</div></div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Inspect the box, open the <b>Computed</b> tab, tick <b>Show all</b>.</li>
+      <li>Filter for <code>padding</code>. The declared <code>0.75em</code> is reported in px.</li>
+      <li>Expand the arrow beside a computed property — it names the rule that set it, with a source link.</li>
+      <li>Change <code>font-size</code> in Styles and watch <code>padding</code> and <code>line-height</code>
+          move with it, because <code>em</code> and unitless line-height are relative to it.</li>
+    </ol>
+  </div>
+  <p class="where"><b>Where:</b> Elements &rarr; Computed.</p>
+</section>
+
+<!-- 05 -->
+<section>
+  <h2><span class="num">05</span>Box model</h2>
+  <p class="sub">Four different numbers, so every ring is distinguishable.</p>
+  <div class="demo"><div class="boxmodel">margin 24/40/16/8 &middot; border 6 &middot; padding 12/28</div></div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Inspect it and open the <b>Computed</b> tab — the box model diagram sits at the <b>top</b> of it.</li>
+      <li>If your DevTools is docked wide, Computed renders beside Styles and the diagram is visible
+          without switching tabs. In a narrow dock you must click <b>Computed</b>.</li>
+      <li>Hover each ring in the diagram — the matching region highlights on the page.</li>
+      <li><b>Double-click a number in the diagram and type a new one.</b> It edits the live style.</li>
+    </ol>
+  </div>
+  <p class="where"><b>Where:</b> Elements &rarr; <b>Computed</b> (top of the pane).
+     <b>Not</b> the Layout tab — Layout is Grid and Flexbox overlays only (see 06 and 07).</p>
+</section>
+
+<!-- 06 -->
+<section>
+  <h2><span class="num">06</span>Flexbox inspector</h2>
+  <p class="sub">Look for the little <code>flex</code> badge next to the element in the DOM tree.</p>
+  <div class="demo">
+    <div class="flex-demo"><div>A</div><div class="tall">B</div><div>C</div></div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Inspect the purple container. Click the grey <b>flex</b> badge beside it in the Elements tree.</li>
+      <li>An overlay appears on the page showing the axes and the free space between items.</li>
+      <li>Open the <b>Layout</b> tab — the container is listed under <b>Flexbox</b> with overlay options.</li>
+      <li>In Styles, change <code>justify-content</code> to <code>center</code>, then
+          <code>flex-direction</code> to <code>column</code>. Watch the axes swap.</li>
+    </ol>
+  </div>
+  <p class="where"><b>Where:</b> the badge is in Elements; the overlay controls are in Elements &rarr; Layout.</p>
+</section>
+
+<!-- 07 -->
+<section>
+  <h2><span class="num">07</span>Grid inspector</h2>
+  <p class="sub">Named areas, uneven gaps, three tracks.</p>
+  <div class="demo">
+    <div class="grid-demo">
+      <div class="g-head">head</div><div class="g-side">side</div>
+      <div class="g-main">main</div><div class="g-aside">aside</div><div class="g-foot">foot</div>
+    </div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Inspect the orange container and click its <b>grid</b> badge.</li>
+      <li>Open the <b>Layout</b> tab. Under <b>Grid &rarr; Overlay display settings</b>, tick
+          <b>Show track sizes</b>, <b>Show area names</b> and <b>Extend grid lines</b>.</li>
+      <li>Switch <b>Show line labels</b> between <em>Line numbers</em> and <em>Line names</em>.</li>
+    </ol>
+  </div>
+  <p class="where"><b>Where:</b> Elements &rarr; Layout &rarr; Grid.</p>
+</section>
+
+<!-- 08 -->
+<section>
+  <h2><span class="num">08</span>Force element state</h2>
+  <p class="sub">The card that is impossible to demonstrate without DevTools.</p>
+  <div class="demo"><button class="state-btn">Focus me, hover me</button></div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Inspect the button. Click <b>:hov</b> in the Styles toolbar.</li>
+      <li>Tick <code>:hover</code> — the style holds even with your mouse elsewhere.</li>
+      <li>Now tick <code>:focus-visible</code>. The amber ring pins open so you can measure its contrast.
+          <b>This is the only way to audit a focus indicator</b> — the moment you click into DevTools,
+          real focus leaves the button.</li>
+      <li>The full list is <code>:active :hover :focus :focus-within :focus-visible :target</code>.</li>
+    </ol>
+  </div>
+  <p class="where"><b>Where:</b> Elements &rarr; Styles &rarr; <code>:hov</code>.</p>
+</section>
+
+<!-- 09 -->
+<section>
+  <h2><span class="num">09</span>CSS variables &amp; the silent fallback</h2>
+  <p class="sub">One token resolves. One is misspelled — and nothing complains.</p>
+  <div class="demo">
+    <div class="var-good">var(--brand-color) &mdash; resolves</div>
+    <div class="var-typo">var(--brand-colour, #9ca3af) &mdash; misspelled, fallback wins</div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Inspect the blue box and hover <code>var(--brand-color)</code> — the resolved value appears.</li>
+      <li>Inspect the grey box. Same syntax, no error anywhere, and the design token was simply ignored.</li>
+      <li>Open <b>Computed</b> on the grey box: it reports the fallback grey as fact.</li>
+      <li>Edit <code>:root</code> in Styles and add <code>--brand-colour:#16a34a</code>. The grey box turns green.</li>
+    </ol>
+  </div>
+  <p class="answer"><b>The point:</b> a mistyped design token is not an error. It is a slightly wrong colour
+     that ships. The resolved value is the only place it becomes visible.</p>
+  <p class="where"><b>Where:</b> Elements &rarr; Styles and Computed.</p>
+</section>
+
+<!-- 10 -->
+<section>
+  <h2><span class="num">10</span>Media queries</h2>
+  <p class="sub">Three breakpoints, plus a preference query.</p>
+  <div class="demo"><div class="mq-box">Current breakpoint: </div></div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Toggle the <b>Device Toolbar</b> (Ctrl+Shift+M) and drag the viewport across 1199 and 767.</li>
+      <li>In the device toolbar's <b>&hellip;</b> menu, enable <b>Show media queries</b> — coloured
+          breakpoint bars appear above the ruler. Click one to jump to that width.</li>
+      <li>Command Menu (Ctrl+Shift+P) &rarr; <b>Emulate CSS prefers-reduced-motion</b>.
+          Section 11's animation stops.</li>
+    </ol>
+  </div>
+  <p class="where"><b>Where:</b> Device Toolbar, and Rendering (via the Command Menu) for preference emulation.</p>
+</section>
+
+<!-- 11 -->
+<section>
+  <h2><span class="num">11</span>Animations panel</h2>
+  <p class="sub">A 4-second infinite animation — long enough to actually catch.</p>
+  <div class="demo"><div class="anim-spinner"></div></div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Command Menu (Ctrl+Shift+P) &rarr; <b>Show Animations</b>.</li>
+      <li>The running animation is captured as a group. Click it to open the timeline.</li>
+      <li>Set speed to <b>25%</b> or <b>10%</b>, then <b>drag the playhead</b> to scrub.</li>
+      <li>Drag the keyframe markers to retime it live, then read the changed values in Styles.</li>
+    </ol>
+  </div>
+  <p class="where"><b>Where:</b> the Animations panel, in the drawer.</p>
+</section>
+
+<!-- 12 -->
+<section>
+  <h2><span class="num">12</span>CSS Overview, Coverage &amp; Changes</h2>
+  <p class="sub">Three different tools that people conflate. This page feeds all three.</p>
+  <div class="demo">
+    <p class="low-contrast">#b9b9b9 on white — fails WCAG AA, and CSS Overview knows it.</p>
+    <span class="inline-unused">I am an inline span with width, height and margin-top that do nothing.</span>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Command Menu &rarr; <b>Show CSS Overview</b> &rarr; <b>Capture overview</b>.</li>
+      <li>Open <b>Contrast issues</b> — the grey paragraph is listed with its ratio.</li>
+      <li>Open <b>CSS declarations / unused declarations</b> — the inline span is there, because
+          <code>width</code>, <code>height</code> and <code>margin-top</code> do not apply to a
+          non-replaced inline element.</li>
+      <li>Now for rules that match <em>nothing</em>: Command Menu &rarr; <b>Show Coverage</b>, reload,
+          and read the unused-bytes bar. That is where <code>.never-matched-*</code> shows up.</li>
+      <li>Edit a few styles anywhere on this page, then Command Menu &rarr; <b>Show Changes</b> for a
+          red/green diff you can paste into your editor.</li>
+    </ol>
+  </div>
+  <p class="answer"><b>The distinction that trips people up:</b> CSS Overview's "unused declarations"
+     means <em>declarations that have no effect on the element they are on</em>. Selectors that match
+     nothing are a different problem, and <b>Coverage</b> is the tool for those.</p>
+  <p class="where"><b>Where:</b> CSS Overview, Coverage and Changes are all separate drawer tools.</p>
+</section>
+
+<!-- 13 -->
+<section>
+  <h2><span class="num new">13</span>@layer — the missing card</h2>
+  <p class="sub">An ID selector losing to a class selector, legitimately.</p>
+  <div class="demo">
+    <div class="layer-box">
+      <p id="layer-target">Inspect me. Am I red or green?</p>
+      <p class="layer-unlayered">And I am styled by an <b>unlayered</b> rule.</p>
+    </div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Inspect the first paragraph. Styles now groups rules under <code>@layer base</code> and
+          <code>@layer utilities</code>.</li>
+      <li>The cascade-layers control appears in the Styles toolbar — open it to see the declared layer order.</li>
+      <li><code>#layer-target</code> — an ID — is struck through, beaten by <code>.layer-box p</code>,
+          purely because <code>utilities</code> is declared after <code>base</code>.</li>
+      <li>Inspect the second paragraph: its unlayered rule wins over everything layered.</li>
+    </ol>
+  </div>
+  <p class="answer"><b>Answer:</b> green. Layers are compared <em>before</em> specificity, so specificity
+     only breaks ties <em>within</em> a layer. That control only appears when the page actually uses
+     <code>@layer</code> — which is why you will never find it on a site like Amazon.</p>
+  <p class="where"><b>Where:</b> Elements &rarr; Styles.</p>
+</section>
+
+<!-- 14 -->
+<section>
+  <h2><span class="num new">14</span>Stacking context — z-index 9999 that loses</h2>
+  <p class="sub">One cause, one checkbox, instant fix.</p>
+  <div class="demo">
+    <div class="sc-stage">
+      <div class="sc-parent"><div class="sc-child">I have z-index: 9999</div></div>
+      <div class="sc-sibling">I have z-index: 2 — and I win</div>
+    </div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Inspect the red box. It really does have <code>z-index:9999</code>.</li>
+      <li>Inspect its parent <code>.sc-parent</code>. Its only declaration is
+          <code>opacity:0.99</code> — visually almost nothing, and it creates a stacking context.</li>
+      <li><b>Untick <code>opacity</code>.</b> The red box jumps to the front immediately.</li>
+      <li>Open the <b>Layers</b> panel (Command Menu &rarr; Show Layers). Note that it shows
+          <em>compositing</em> layers — related, but not the same thing. Chrome has no
+          first-class stacking-context inspector.</li>
+    </ol>
+  </div>
+  <p class="answer"><b>Why it earns a card:</b> the fix is never in the element you are inspecting.
+     <code>opacity</code> below 1, <code>transform</code>, <code>filter</code>, <code>will-change</code>,
+     <code>contain</code>, <code>isolation:isolate</code>, <code>position:fixed</code> and a non-<code>auto</code>
+     <code>z-index</code> on a positioned element <em>all</em> create one, silently.
+     If several are present at once, unticking one changes nothing — which is exactly what makes this
+     bug so frustrating in real code.</p>
+  <p class="where"><b>Where:</b> Elements &rarr; Styles, then the Layers panel for context.</p>
+</section>
+
+<!-- 15 -->
+<section>
+  <h2><span class="num new">15</span>Container queries</h2>
+  <p class="sub">Drag the handle at the container's bottom-right corner.</p>
+  <div class="demo">
+    <div class="cq-container"><div class="cq-item">I respond to my container</div></div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Drag the resize handle past 420px. The item turns green — the viewport never changed.</li>
+      <li>Inspect the item: Styles shows the <code>@container card (min-width:420px)</code> block,
+          greyed out when it does not match and active when it does.</li>
+      <li>Inspect the container and find <code>container-type:inline-size</code>. Untick it and the
+          query stops matching at any width.</li>
+    </ol>
+  </div>
+  <p class="where"><b>Where:</b> Elements &rarr; Styles.</p>
+</section>
+
+</div>
+</body>
+</html>
