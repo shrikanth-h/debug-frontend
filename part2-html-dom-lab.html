@@ -1,0 +1,987 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HTML &amp; DOM Inspection Lab — Part 2 hands-on (v2)</title>
+
+<style>
+:root{
+  --paper:#FDFAF2; --ink:#1A1714; --ink2:#4A443C; --ink3:#8C8478;
+  --hi:#FFE873; --line:#DED5C2;
+  --blue:#2F6FE0; --green:#2E9E63; --red:#D94B3C; --amber:#E0A32E; --purple:#7C5BC4;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:40px 24px 120px}
+header h1{font-size:34px;line-height:1.15;margin:0 0 8px;letter-spacing:-.02em}
+header p{color:var(--ink2);margin:0 0 6px}
+header .note{font-size:14px;color:var(--ink3)}
+.ver{display:inline-block;font:700 12px/1 ui-monospace,monospace;background:var(--purple);
+  color:#fff;padding:5px 9px;border-radius:5px;margin-bottom:14px;letter-spacing:.08em}
+
+.warn{background:#FDE8E8;border:2px solid var(--red);border-radius:10px;
+  padding:14px 16px;margin:18px 0;font-size:15px}
+.warn b{display:block;margin-bottom:4px}
+
+section{border-top:2px solid var(--line);margin-top:38px;padding-top:26px}
+h2{font-size:22px;margin:0 0 4px;letter-spacing:-.01em}
+h2 .num{font:700 13px/1 ui-monospace,monospace;background:var(--ink);color:var(--paper);
+  padding:5px 8px;border-radius:5px;margin-right:10px;vertical-align:3px}
+.sub{color:var(--ink3);font-size:15px;margin:0 0 16px}
+
+.try{background:#FFF8DC;border-left:5px solid var(--hi);padding:12px 16px;margin:16px 0;
+  border-radius:0 8px 8px 0;font-size:15px}
+.try b.h{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:6px}
+.try ol{margin:0;padding-left:20px}
+.try li{margin:5px 0}
+code,kbd{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;
+  background:#EFEAD9;padding:1px 5px;border-radius:4px}
+kbd{border:1px solid var(--line);box-shadow:0 1px 0 var(--line)}
+.answer{font-size:14px;color:var(--ink2);margin-top:10px}
+.answer b{color:var(--ink)}
+.demo{border:2px dashed var(--line);border-radius:10px;padding:20px;margin:14px 0;background:#fff}
+.readout{font:13px/1.6 ui-monospace,monospace;background:#F3F0E7;border:1px solid var(--line);
+  border-radius:8px;padding:10px 12px;margin-top:10px;color:var(--ink2);white-space:pre-wrap}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button.lab{font:600 15px/1 system-ui,sans-serif;padding:10px 18px;border-radius:8px;
+  border:2px solid var(--blue);background:#fff;color:var(--blue);cursor:pointer}
+button.lab:hover{background:#EAF1FE}
+button.lab.danger{border-color:var(--red);color:var(--red)}
+button.lab.danger:hover{background:#FDE8E8}
+
+/* exact-path box */
+.path{background:#EAF1FE;border:2px solid var(--blue);border-radius:10px;
+  padding:12px 14px;margin-top:12px;font-size:14.5px}
+.path b.h{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--blue);margin-bottom:6px}
+.path .step{font:13px ui-monospace,monospace;background:#fff;border:1px solid #BBD0F5;
+  border-radius:5px;padding:2px 7px;display:inline-block;margin:2px 0}
+.path .arrow{color:var(--ink3);margin:0 4px}
+
+/* small reference table (console helpers) */
+table.ref{border-collapse:collapse;width:100%;margin-top:10px;font-size:14px}
+table.ref th,table.ref td{border:1px solid var(--line);padding:7px 9px;text-align:left;
+  vertical-align:top}
+table.ref th{background:#F3F0E7;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink3)}
+table.ref td:first-child{white-space:nowrap;width:1%}
+
+/* context-menu mock */
+.menus{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px}
+.menu{border:2px solid var(--ink);border-radius:8px;background:#fff;overflow:hidden;
+  font:13.5px system-ui,sans-serif;min-width:232px}
+.menu .cap{background:#F1EEE7;border-bottom:2px solid var(--ink);padding:5px 10px;
+  font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3)}
+.menu i{display:block;padding:5px 12px;font-style:normal;color:var(--ink2)}
+.menu i.sep{border-top:1px solid var(--line);padding:0;margin:4px 0}
+.menu i.hit{background:#CFE0FB;color:var(--ink);font-weight:700}
+.menu i.hit2{background:#FFE873;color:var(--ink);font-weight:700}
+.menu i .sm{float:right;color:var(--ink3)}
+
+/* orientation map — Part 2 lives in the Elements sidebar */
+.map{border:2px solid var(--ink);border-radius:10px;overflow:hidden;background:#fff;
+  font:13px system-ui,sans-serif}
+.map .bar{display:flex;align-items:center;gap:6px;padding:8px 10px;background:#F1EEE7;
+  border-bottom:2px solid var(--ink);flex-wrap:wrap}
+.map .tab{padding:5px 9px;border-radius:5px;color:var(--ink2)}
+.map .tab.on{background:#fff;border-bottom:3px solid var(--blue);color:var(--ink);font-weight:700}
+.map .split{display:flex;min-height:120px}
+.map .treeside{flex:1.1;padding:10px 12px;border-right:2px solid var(--ink);
+  font:12.5px ui-monospace,monospace;color:var(--ink2);line-height:1.8}
+.map .sideside{flex:1;background:#FAF8F2}
+.map .sidetabs{display:flex;gap:2px;padding:6px 8px;background:#F1EEE7;
+  border-bottom:1px solid var(--line);flex-wrap:nowrap;overflow:hidden}
+.map .sidetabs .tab{font-size:11.5px;padding:4px 6px;white-space:nowrap}
+.map .chev{font-weight:700;color:var(--red);border:1.5px solid var(--red);border-radius:4px;
+  padding:3px 6px;background:#fff}
+.map .crumbs{padding:6px 12px;background:#F1EEE7;border-top:1px solid var(--line);
+  font:12px ui-monospace,monospace;color:var(--ink3)}
+.map .findbar{padding:6px 12px;border-top:2px solid var(--ink);background:#fff;
+  font:12px ui-monospace,monospace;color:var(--ink3)}
+.pin{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
+  border-radius:50%;background:var(--red);color:#fff;font:700 12px/1 ui-monospace,monospace;
+  vertical-align:middle;margin:0 3px;flex:none}
+.legend{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;font-size:14.5px}
+.legend div{display:flex;gap:8px;align-items:flex-start}
+@media (max-width:700px){ .legend{grid-template-columns:1fr} }
+
+/* 01 */
+.srcbox{font:13px/1.7 ui-monospace,monospace;background:#F3F0E7;border:1px solid var(--line);
+  border-radius:8px;padding:12px;white-space:pre;overflow-x:auto}
+/* 02 */
+.tree-demo{border:2px solid var(--line);border-radius:10px;overflow:hidden}
+.tree-demo header{background:#EAF1FE;padding:10px 14px;font-weight:700}
+.tree-demo .cols{display:flex}
+.tree-demo main{flex:1;padding:14px;border-right:2px solid var(--line)}
+.tree-demo aside{width:170px;padding:14px;background:#F7F4EC}
+.tree-demo footer{background:#F3F0E7;padding:10px 14px;font-size:14px;color:var(--ink3)}
+.tree-demo article{border:1px dashed var(--line);border-radius:8px;padding:10px;margin-bottom:10px}
+/* 03 */
+.edit-card{background:#EAF1FE;border:2px solid var(--blue);border-radius:10px;padding:16px}
+/* 04 */
+.order-row{display:flex;gap:12px;flex-wrap:wrap}
+.ord{display:inline-block;padding:12px 18px;border-radius:8px;border:2px solid var(--line);
+  background:#fff;font-weight:700;text-decoration:none;color:var(--ink)}
+.ord:focus-visible{outline:4px solid var(--amber);outline-offset:3px}
+.ord.a{order:3;background:#FDE8E8;border-color:var(--red)}
+.ord.b{order:2;background:#FFF4E8;border-color:var(--amber)}
+.ord.c{order:1;background:#E8F6EE;border-color:var(--green)}
+/* 05 */
+.ap-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ap-grid label{display:block;font-weight:600;margin-bottom:6px}
+.ap-grid input[type=text]{width:100%;padding:8px 10px;border:2px solid var(--line);border-radius:8px;
+  font:15px system-ui,sans-serif}
+/* 07 */
+.find-zone{display:flex;gap:10px;flex-wrap:wrap}
+.find-zone button{padding:10px 16px;border-radius:8px;border:2px solid var(--line);
+  background:#fff;font-weight:600;cursor:pointer}
+/* 08 */
+._generated_hash_x9k2{background:#F5F1FF;border:2px solid var(--purple);border-radius:10px;
+  padding:16px;font-weight:600}
+/* 09 */
+.listen-btn{font:700 16px system-ui,sans-serif;padding:14px 28px;border-radius:8px;
+  border:3px solid var(--green);background:#E8F6EE;color:var(--ink);cursor:pointer}
+.delegated-parent{border:2px dashed var(--green);border-radius:10px;padding:16px}
+/* 10 */
+.bp-target{background:#FFF4E8;border:2px solid var(--amber);border-radius:10px;padding:16px}
+/* 11 */
+.frame-demo{width:100%;height:130px;border:2px solid var(--line);border-radius:10px}
+/* 12 */
+.a11y-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.icon-btn{width:46px;height:46px;border-radius:8px;border:2px solid var(--red);
+  background:#FDE8E8;font-size:20px;cursor:pointer}
+.icon-btn.good{border-color:var(--green);background:#E8F6EE}
+.a11y-row input{padding:8px 10px;border:2px solid var(--line);border-radius:8px;
+  font:15px system-ui,sans-serif}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<header>
+  <span class="ver">PART 2 &middot; HANDS-ON &middot; V2</span>
+  <h1>HTML &amp; DOM Inspection Lab</h1>
+  <p>A working exercise for every card in Part 2 — reading and manipulating the live DOM.</p>
+  <p class="note">Most of Part 2 happens in the <b>Elements sidebar</b>. Read the map below first;
+     four of these twelve sections use a sidebar tab that is easy to miss.</p>
+
+  <div class="warn">
+    <b>Open this over http(s), not by double-clicking the file.</b>
+    On <code>file://</code> the page gets a unique <code>null</code> origin and section <b>11</b>'s
+    iframe is treated as cross-origin, so you cannot inspect inside it.
+    Use the GitHub&nbsp;Pages URL, or run <code>python -m http.server</code> in the folder and open
+    <code>http://localhost:8000/</code>.
+  </div>
+</header>
+
+<!-- ORIENTATION MAP -->
+<section style="border-top:none;padding-top:0">
+  <h2>First — a map of the Elements panel</h2>
+  <p class="sub">Event Listeners, DOM Breakpoints, Properties and Accessibility all live in one strip.</p>
+
+  <div class="map">
+    <div class="bar">
+      <span class="tab on">Elements</span><span class="tab">Console</span>
+      <span class="tab">Sources</span><span class="tab">Network</span>
+    </div>
+    <div class="split">
+      <div class="treeside">
+        &#9662; &lt;html&gt;<br>
+        &nbsp;&nbsp;&#9662; &lt;body&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#9656; &lt;header&gt;…&lt;/header&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="background:#CFE0FB;border-radius:3px;padding:0 4px">
+          &lt;div class="card"&gt;</span>
+      </div>
+      <div class="sideside">
+        <div class="sidetabs">
+          <span class="tab on">Styles</span><span class="tab">Computed</span>
+          <span class="tab">Layout</span><span class="tab">Event Listeners</span>
+          <span class="chev">&raquo;</span>
+        </div>
+        <div style="padding:10px 12px;color:var(--ink3);font-size:12.5px">
+          DOM Breakpoints, Properties and Accessibility are hidden behind the
+          <b style="color:var(--red)">&raquo;</b> when the panel is narrow.
+        </div>
+      </div>
+    </div>
+    <div class="crumbs">html &nbsp;&rsaquo;&nbsp; body &nbsp;&rsaquo;&nbsp; main &nbsp;&rsaquo;&nbsp; div.card</div>
+    <div class="findbar">&#128269; Find by string, selector, or XPath &nbsp;&nbsp;(Ctrl+F)</div>
+  </div>
+
+  <div class="legend">
+    <div><span class="pin">1</span><span><b>The DOM tree</b> — the live document, not the served HTML.</span></div>
+    <div><span class="pin">2</span><span><b>Sidebar tabs</b> — Styles, Computed, Layout,
+      <b>Event Listeners</b>, <b>DOM Breakpoints</b>, <b>Properties</b>, <b>Accessibility</b>.</span></div>
+    <div><span class="pin">3</span><span><b>The &raquo; overflow chevron</b> — if a tab this lab names
+      is missing, <b>it is hidden here</b>. Widen DevTools or dock it to the side.</span></div>
+    <div><span class="pin">4</span><span><b>Breadcrumb</b> along the bottom of the tree — the full
+      ancestor path of the selected node. Click any crumb to jump.</span></div>
+    <div><span class="pin">5</span><span><b>Find bar</b> — <kbd>Ctrl+F</kbd> <em>inside</em> Elements.
+      Accepts plain text, a CSS selector, or an XPath expression.</span></div>
+    <div><span class="pin">6</span><span><b>Lost?</b> <kbd>Ctrl+Shift+P</kbd> and type the name of
+      whatever you are looking for.</span></div>
+  </div>
+</section>
+
+<!-- 01 -->
+<section>
+  <h2><span class="num">01</span>DOM vs Source</h2>
+  <p class="sub">The single most important idea on the sheet.</p>
+  <div class="demo">
+    <p style="margin:0 0 8px"><b>What the server sent for this block:</b></p>
+    <div class="srcbox">&lt;div id="render-target"&gt;&lt;/div&gt;</div>
+    <p style="margin:14px 0 8px"><b>What JavaScript built at runtime:</b></p>
+    <div id="render-target"></div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Inspect the rendered card. Count the elements in the Elements tree.</li>
+      <li>Press <kbd>Ctrl+U</kbd> to view source and search for <code>render-target</code> —
+          you find one empty div and nothing inside it.</li>
+      <li>In the Console, compare directly:
+          <code>document.getElementById('render-target').children.length</code></li>
+    </ol>
+  </div>
+  <p class="answer"><b>Why it matters:</b> this is how you debug SSR and hydration. If View Source and
+     Elements disagree about the same component, you have found the bug before opening a log file.</p>
+</section>
+
+<!-- 02 -->
+<section>
+  <h2><span class="num">02</span>Navigate the DOM tree</h2>
+  <p class="sub">A deep, semantic structure worth walking.</p>
+  <div class="demo">
+    <div class="tree-demo">
+      <header>Site header</header>
+      <div class="cols">
+        <main>
+          <article><h3 style="margin:0 0 6px">Article one</h3><p style="margin:0">Body copy.</p></article>
+          <article><h3 style="margin:0 0 6px">Article two</h3><p style="margin:0">More copy.</p></article>
+        </main>
+        <aside>Sidebar</aside>
+      </div>
+      <footer>Site footer</footer>
+    </div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Inspect "Article one". Use <kbd>&uarr;</kbd> <kbd>&darr;</kbd> to move between nodes and
+          <kbd>&larr;</kbd> <kbd>&rarr;</kbd> to collapse and expand.</li>
+      <li><b>Alt+click</b> (Option+click) a collapse triangle to expand <em>every</em> descendant at once.</li>
+      <li>Read the <b>breadcrumb</b> along the bottom of the tree, then click a crumb to jump to that ancestor.</li>
+      <li>Right-click a node &rarr; <b>Scroll into view</b> on something off-screen.</li>
+    </ol>
+  </div>
+  <div class="path"><b class="h">Where the breadcrumb is</b>
+    <span class="step">Elements panel</span><span class="arrow">&rarr;</span>
+    <span class="step">the thin strip along the very bottom of the DOM tree</span><br>
+    It reads <code>html &rsaquo; body &rsaquo; div &rsaquo; main &rsaquo; article</code>. Easy to overlook because it is
+    only one line tall.
+  </div>
+</section>
+
+<!-- 03 -->
+<section>
+  <h2><span class="num">03</span>Edit HTML live</h2>
+  <p class="sub">Three ways to edit, and one myth to kill.</p>
+  <div class="demo">
+    <div class="edit-card" id="edit-card">
+      <h3 style="margin:0 0 6px" class="title">Original title</h3>
+      <p style="margin:0">Double-click my text. Then try F2 on the whole element.</p>
+    </div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li><b>Edit a text node</b> — double-click the heading's text and retype it.</li>
+      <li><b>Edit one attribute</b> — double-click the <code>class</code> attribute in the Elements
+          tree and change it.</li>
+      <li><b>Edit the whole element</b> — select the outer div and press <kbd>F2</kbd>
+          (<b>Edit as HTML</b>). Paste a whole fragment; <kbd>Ctrl+Enter</kbd> commits it.
+          Right-click &rarr; <b>Edit as HTML</b> opens the same editor.</li>
+      <li>Now the myth: double-click the heading's text again and, while it is in edit mode,
+          read the element's attributes in the tree. There is
+          <b>no <code>contenteditable</code></b> anywhere.</li>
+    </ol>
+  </div>
+  <div class="path"><b class="h">The three edits, and how to reach each one</b>
+    <div style="margin-top:4px"><b>1. A text node</b> &mdash;
+      <span class="step">double-click the text</span></div>
+    <div style="margin-top:6px"><b>2. One attribute</b> &mdash;
+      <span class="step">double-click the attribute name or its value</span></div>
+    <div style="margin-top:6px"><b>3. The whole element, as HTML</b> &mdash;
+      <span class="step">select the node</span><span class="arrow">&rarr;</span><span class="step">F2</span>
+      <span style="color:var(--ink3)">or</span>
+      <span class="step">right-click the node</span><span class="arrow">&rarr;</span>
+      <span class="step">Edit as HTML</span>
+      <span style="color:var(--ink3)">&mdash; two routes, one editor</span></div>
+    <div style="margin-top:8px">Every edit dies on reload. Capture a diff first:
+      <span class="step">&#8942; More options</span><span class="arrow">&rarr;</span>
+      <span class="step">More tools</span><span class="arrow">&rarr;</span>
+      <span class="step">Changes</span></div>
+  </div>
+  <p class="answer"><b>The myth:</b> DevTools does not add <code>contenteditable</code> to edit text.
+     That attribute is an authoring feature for your visitors — unrelated to inspector editing.</p>
+</section>
+
+<!-- 04 -->
+<section>
+  <h2><span class="num">04</span>Add, delete and reorder nodes</h2>
+  <p class="sub">Where DOM order and visual order disagree — and why that is an accessibility bug.</p>
+  <div class="demo">
+    <div class="order-row">
+      <a href="#s4" class="ord a">1st in DOM</a>
+      <a href="#s4" class="ord b">2nd in DOM</a>
+      <a href="#s4" class="ord c">3rd in DOM</a>
+    </div>
+    <div class="readout">CSS <code>order</code> has reversed these visually. The DOM order is unchanged.</div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Click just before the green box, then press <kbd>Tab</kbd> three times.
+          Focus jumps <b>right to left</b> — it follows DOM order, not what you see.</li>
+      <li>In Elements, <b>drag the three links</b> into the order they appear on screen.</li>
+      <li>Tab through again. Focus now moves left to right.</li>
+      <li>Right-click a node &rarr; <b>Delete element</b>, then <kbd>Ctrl+Z</kbd> to undo.</li>
+    </ol>
+  </div>
+  <p class="answer"><b>The real lesson:</b> keyboard and screen-reader users traverse the DOM, not the
+     layout. Flexbox <code>order</code>, <code>row-reverse</code> and grid placement silently break that
+     relationship. Reordering nodes in Elements proves it before you touch the CSS.</p>
+</section>
+
+<!-- 05 -->
+<section>
+  <h2><span class="num">05</span>Attributes vs properties</h2>
+  <p class="sub">Type in the box. Watch the two columns disagree.</p>
+  <div class="demo">
+    <div class="ap-grid">
+      <div>
+        <label for="ap-text">Text input (attribute says "Hi")</label>
+        <input type="text" id="ap-text" value="Hi">
+      </div>
+      <div>
+        <label for="ap-check">Checkbox (attribute has <code>checked</code>)</label>
+        <input type="checkbox" id="ap-check" checked style="width:22px;height:22px">
+      </div>
+    </div>
+    <div class="readout" id="ap-out">reading…</div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Type something new in the text box and untick the checkbox.</li>
+      <li>Watch the readout: the <b>attributes never move</b>, the <b>properties track you</b>.</li>
+      <li>Inspect the text input. The Elements tree still shows <code>value="Hi"</code>.</li>
+      <li>Select it, then in the Console run <code>$0.value</code> and
+          <code>$0.getAttribute('value')</code>. Two different answers, both correct.</li>
+      <li>Open the <b>Properties</b> sidebar tab for the full live property bag.</li>
+    </ol>
+  </div>
+  <div class="path"><b class="h">Where the Properties tab is</b>
+    <span class="step">Elements</span><span class="arrow">&rarr;</span>
+    <span class="step">sidebar tab strip</span><span class="arrow">&rarr;</span>
+    <span class="step">Properties</span>
+    <div style="margin-top:6px">It sits after Styles / Computed / Layout / Event Listeners /
+      DOM Breakpoints. On a narrow dock it is <b>behind the &raquo; chevron</b>.</div>
+  </div>
+  <p class="answer"><b>Where this bites:</b> React controlled inputs. The attribute is the initial value;
+     the property is the current state.</p>
+</section>
+
+<!-- 06 -->
+<section>
+  <h2><span class="num">06</span>Selected element <code>$0</code></h2>
+  <p class="sub"><code>$0</code> is not one fixed element — it always points at whatever is
+     highlighted in the Elements tree <em>right now</em>.</p>
+  <div class="demo">
+    <div id="dollar-first" data-sku="SKU-42" data-tier="gold"
+         style="background:#F5F1FF;border:2px solid var(--purple);border-radius:10px;padding:16px;font-weight:600">
+      Element A &mdash; <code>#dollar-first</code>. Select me <b>first</b>.
+    </div>
+    <div id="dollar-second" data-sku="SKU-99" data-tier="silver"
+         style="background:#E8F6EE;border:2px solid var(--green);border-radius:10px;padding:16px;
+                font-weight:600;margin-top:10px">
+      Element B &mdash; <code>#dollar-second</code>. Select me <b>second</b>.
+    </div>
+  </div>
+
+  <div class="try"><b class="h">Try this — part 1: what $0 is</b>
+    <ol>
+      <li>Inspect <b>Element A</b> (the purple box).</li>
+      <li>Press <kbd>Esc</kbd> to open the drawer. <b>The drawer remembers whichever tab you used
+          last</b>, so if it shows Issues or Search, click the <b>Console</b> tab inside the drawer.
+          Keeping Elements visible above means you can see what <code>$0</code> is pointing at.</li>
+      <li>Run <code>$0</code> — DevTools echoes the element back.</li>
+      <li>Run <code>$0.id</code> — <code>"dollar-first"</code>. Proof of what it points at.</li>
+      <li>Run <code>$0.dataset</code> — <code>{sku: "SKU-42", tier: "gold"}</code></li>
+      <li>Run <code>$0.getBoundingClientRect()</code> — its real measured position.</li>
+      <li>Run <code>$0.style.outline = '4px solid red'</code> — you just restyled it from the Console.</li>
+    </ol>
+  </div>
+
+  <div class="try"><b class="h">Try this — part 2: why the numbers go up to $4</b>
+    <ol>
+      <li>Element A is still selected, so <code>$0.id</code> is <code>"dollar-first"</code>.</li>
+      <li>Now click <b>Element B</b> (the green box) in the Elements tree.</li>
+      <li>Back in the Console, run these two lines:<br>
+          <code>$0.id</code> &rarr; <code>"dollar-second"</code> &nbsp;&nbsp;<em>(B — the new selection)</em><br>
+          <code>$1.id</code> &rarr; <code>"dollar-first"</code> &nbsp;&nbsp;<em>(A — pushed down one slot)</em></li>
+      <li>Select a third element anywhere on the page and run all three:
+          <code>$0.id</code>, <code>$1.id</code>, <code>$2.id</code>. Everything has shifted down again.</li>
+    </ol>
+  </div>
+  <p class="answer"><b>So <code>$0</code>–<code>$4</code> is a five-deep history of your selections.</b>
+     <code>$0</code> is the current one; <code>$1</code> the one before; <code>$4</code> the oldest
+     DevTools still remembers. Each new selection pushes the others down and drops the sixth.
+     Useful when you need to compare two elements without losing the first.</p>
+
+  <div class="try"><b class="h">Try this — part 3: the $ and $$ helpers</b>
+    <ol>
+      <li>Run <code>$$('.ord')</code>. You get an <b>array of three <code>&lt;a&gt;</code> elements</b> —
+          the three reorder links from <b>section 04</b> of this page, which carry
+          <code>class="ord"</code>. Nothing magic about <code>.ord</code>; it is just a CSS class
+          that exists on this page.</li>
+      <li>Because it is a real Array, you can chain straight onto it:<br>
+          <code>$$('.ord').map(el =&gt; el.textContent.trim())</code></li>
+      <li>Compare with the standard DOM call:<br>
+          <code>document.querySelectorAll('.ord').map(el =&gt; el.textContent)</code><br>
+          That <b>throws</b> — a NodeList has no <code>.map()</code>. This is the practical reason
+          <code>$$</code> exists.</li>
+      <li>Run <code>$('.ord')</code> — the <b>first</b> match only.</li>
+    </ol>
+  </div>
+
+  <div class="path"><b class="h">The Console-only helpers used in this section</b>
+    <table class="ref">
+      <tr><th>Helper</th><th>Means</th><th>Returns</th></tr>
+      <tr><td><code>$0</code></td><td>currently selected element</td><td>the element</td></tr>
+      <tr><td><code>$1</code>…<code>$4</code></td><td>previously selected elements, newest first</td>
+          <td>the element</td></tr>
+      <tr><td><code>$('sel')</code></td><td><code>document.querySelector('sel')</code></td>
+          <td>first match, or <code>null</code></td></tr>
+      <tr><td><code>$$('sel')</code></td><td><code>document.querySelectorAll('sel')</code></td>
+          <td><b>a real Array</b> of all matches</td></tr>
+      <tr><td><code>$_</code></td><td>the value of the last expression you evaluated</td><td>anything</td></tr>
+      <tr><td><code>inspect(el)</code></td>
+          <td><b>selects <code>el</code> in the Elements panel</b>, so <code>$0</code> becomes it</td>
+          <td>&mdash; jumps the panel</td></tr>
+      <tr><td><code>getEventListeners(el)</code></td>
+          <td>the listeners registered on <code>el</code> (used in section 09)</td>
+          <td>object keyed by event type</td></tr>
+    </table>
+    <div style="margin-top:8px"><b><code>inspect()</code> is the reliable way to select something.</b>
+      Clicking a small element inside a padded parent often selects the parent instead;
+      <code>inspect(document.getElementById('…'))</code> never misses.</div>
+    <div style="margin-top:8px"><b>These exist only in the DevTools Console.</b> Put
+      <code>$0</code> or <code>$$()</code> in your page's JavaScript and it throws
+      <code>ReferenceError</code>. And if the page loads jQuery, <b>the page's <code>$</code> wins</b>
+      over the DevTools one — but <code>$$</code> and <code>$0</code> keep working.</div>
+  </div>
+</section>
+
+<!-- 07 -->
+<section>
+  <h2><span class="num">07</span>Find elements</h2>
+  <p class="sub">Text, CSS selector, XPath — three modes, one search box.</p>
+  <div class="demo">
+    <div class="find-zone">
+      <button data-role="safe">Save draft</button>
+      <button data-role="danger">Delete everything</button>
+      <button data-role="safe">Publish</button>
+    </div>
+    <div class="readout">Three buttons. Only one is dangerous, and only the attribute says so.</div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Click once inside the Elements tree, then press <kbd>Ctrl+F</kbd>.
+          A search bar appears <b>at the bottom of the Elements panel</b>.</li>
+      <li><b>Plain text:</b> <code>Delete everything</code></li>
+      <li><b>CSS selector:</b> <code>.find-zone button</code> — steps through all three matches</li>
+      <li><b>XPath:</b> <code>//button[@data-role='danger']</code> — one hit, and no CSS selector
+          expresses that as directly</li>
+      <li><kbd>Enter</kbd> cycles matches; the counter shows how many there are.</li>
+    </ol>
+  </div>
+  <div class="path"><b class="h">Two different searches — do not mix them up</b>
+    <span class="step">Ctrl+F</span> <span style="color:var(--ink3)">with Elements focused → searches the DOM tree (this section)</span><br>
+    <span class="step">Ctrl+Shift+F</span> <span style="color:var(--ink3)">→ opens the Search drawer, searches every loaded file (Part 1, section 07)</span>
+  </div>
+</section>
+
+<!-- 08 -->
+<section>
+  <h2><span class="num">08</span>Copy element</h2>
+  <p class="sub">Four things worth copying, for four different reasons.</p>
+  <div class="demo">
+    <div class="_generated_hash_x9k2" id="copy-me">
+      My class is <code>_generated_hash_x9k2</code> — the kind of name a bundler invents.
+    </div>
+  </div>
+  <div class="path"><b class="h">How to reach the Copy submenu</b>
+    <div style="margin-bottom:4px"><b>1.</b> Inspect the element so it is highlighted in the
+      <b>Elements</b> tree.</div>
+    <div style="margin-bottom:4px"><b>2.</b> <b>Right-click the node row inside the Elements tree</b>
+      — the line that reads <code>&lt;div class="_generated_hash_x9k2" id="copy-me"&gt;</code>.
+      <span style="color:var(--red);font-weight:600">Not the box on the page</span> — right-clicking
+      the rendered page gives you Chrome's own menu (Back / Reload / Inspect), not this one.</div>
+    <div><b>3.</b> Hover <b>Copy</b> and its submenu opens to the side.</div>
+
+    <div class="menus">
+      <div class="menu">
+        <div class="cap">Right-click menu (abridged)</div>
+        <i>Add attribute</i><i>Edit attribute</i><i>Edit as HTML</i>
+        <i>Duplicate element</i><i>Delete element</i>
+        <i class="sep"></i>
+        <i>Cut</i>
+        <i class="hit">Copy <span class="sm">&#9656;</span></i>
+        <i>Paste</i>
+        <i class="sep"></i>
+        <i>Hide element</i><i>Force state <span class="sm">&#9656;</span></i>
+        <i>Break on <span class="sm">&#9656;</span></i>
+        <i class="sep"></i>
+        <i>Expand recursively</i><i>Collapse children</i>
+        <i>Switch to accessibility tree</i>
+        <i class="hit2">Capture node screenshot</i>
+        <i>Scroll into view</i><i>Focus</i>
+      </div>
+      <div class="menu">
+        <div class="cap">&rarr; Copy submenu</div>
+        <i>Copy element</i>
+        <i class="sep"></i>
+        <i>Copy outerHTML</i><i>Copy selector</i><i>Copy JS path</i>
+        <i>Copy styles</i><i>Copy XPath</i><i>Copy full XPath</i>
+      </div>
+    </div>
+
+    <div style="margin-top:10px"><b style="color:#8a6d00">Capture node screenshot is on the
+      <em>outer</em> menu, not in the Copy submenu.</b> It sits low down, between
+      <b>Switch to accessibility tree</b> and <b>Scroll into view</b> — which is why it is easy to
+      miss while you are looking at Copy.</div>
+  </div>
+
+  <div class="try"><b class="h">Try this — all seven Copy options</b>
+    <div style="margin:-2px 0 8px;color:var(--ink2)">Everything below assumes the selected node is
+      <code>#copy-me</code>.</div>
+    <ol>
+      <li><b>Copy element</b> and <b>Copy outerHTML</b> — both give you the element's full HTML,
+          the opening tag included. Paste each into a text editor and compare; treat them as the
+          same tool.</li>
+      <li><b>Copy selector</b> &rarr; <code>#copy-me</code> — a CSS selector. Paste it inside
+          <code>document.querySelector('…')</code> in the Console to prove it resolves.</li>
+      <li><b>Copy JS path</b> &rarr; <code>document.querySelector("#copy-me")</code> — the same
+          selector, already wrapped and runnable. Paste straight into the Console, or into a
+          Playwright or Cypress test.</li>
+      <li><b>Copy styles</b> — the element's CSS rules as text, for pasting into a stylesheet or a
+          bug report.</li>
+      <li><b>Copy XPath</b> &rarr; <code>//*[@id="copy-me"]</code> — the short XPath, anchored to
+          the id.</li>
+      <li><b>Copy full XPath</b> &rarr; something like
+          <code>/html/body/div/section[9]/div/div</code> — the absolute path from the root.
+          Brittle: it breaks the moment anything above it moves.</li>
+      <li><b>Capture node screenshot</b> (outer menu) — saves a PNG of just this element to your
+          downloads. Ideal for a bug ticket.</li>
+    </ol>
+  </div>
+  <p class="answer"><b>Which one to reach for:</b> <b>JS path</b> for anything you are going to run
+     or automate. <b>Selector</b> when you need the string alone. <b>XPath</b> when no CSS selector
+     can express the target — an attribute-value match, or "the element containing this text".
+     Avoid <b>full XPath</b> except as a last resort.</p>
+  <p class="answer"><b>Why it matters on a real app:</b> hashed class names change every build.
+     Copy selector gives you something that works right now.</p>
+</section>
+
+<!-- 09 -->
+<section>
+  <h2><span class="num">09</span>Event listeners</h2>
+  <p class="sub">Including the one that is not on the element you clicked.</p>
+  <div class="demo">
+    <div class="delegated-parent" id="delegate-parent">
+      <p style="margin:0 0 10px;font-size:14px;color:var(--ink3)">
+        This container has a <b>delegated</b> click listener. The button has three of its own.</p>
+      <button class="listen-btn" id="listen-btn">Click me</button>
+    </div>
+    <div class="readout" id="listen-out">no events yet</div>
+  </div>
+  <div class="try"><b class="h">Try this — part 1: prove what is attached (never fails)</b>
+    <ol>
+      <li>Press <kbd>Esc</kbd> for the Console. Run this — it names the element explicitly, so it
+          <b>does not depend on what is selected</b>:<br>
+          <code>Object.keys(getEventListeners(document.getElementById('listen-btn')))</code><br>
+          &rarr; <code>['click', 'focus', 'mousedown']</code> &mdash; <b>three</b>.</li>
+      <li>Now the container, same way:<br>
+          <code>Object.keys(getEventListeners(document.getElementById('delegate-parent')))</code><br>
+          &rarr; <code>['click']</code> &mdash; <b>one</b>. That single one is the delegated listener.</li>
+      <li>Have DevTools select the button <b>for</b> you, so no clicking accuracy is needed:<br>
+          <code>inspect(document.getElementById('listen-btn'))</code><br>
+          The Elements panel jumps to that node and <code>$0</code> now <em>is</em> the button.</li>
+      <li>Confirm it: <code>$0.id</code> &rarr; <code>"listen-btn"</code>. Then
+          <code>Object.keys(getEventListeners($0))</code> &rarr; all three.</li>
+    </ol>
+  </div>
+
+  <div class="path" style="background:#FDE8E8;border-color:var(--red)">
+    <b class="h" style="color:var(--red)">The most common wrong result &mdash; and its one-line fix</b>
+    <div style="margin-bottom:6px">If <code>getEventListeners($0)</code> returns just
+      <code>{click: Array(1)}</code>:</div>
+    <div>That is <b>one click listener on the selected node</b> &mdash; the signature of the
+      <b>container</b>, not the button. Nothing is broken; <code>$0</code> is simply pointing at
+      <code>div#delegate-parent</code>.</div>
+    <div style="margin-top:6px">Fix it in one line:
+      <span class="step">inspect(document.getElementById('listen-btn'))</span>
+      then run <code>getEventListeners($0)</code> again.</div>
+    <div style="margin-top:6px"><b>Why it happens:</b> the button sits inside a dashed container.
+      Clicking anywhere in the padding around the button &mdash; or right-clicking near it and
+      choosing Inspect &mdash; selects the container. <code>inspect()</code> sidesteps that entirely.</div>
+  </div>
+
+  <p class="answer"><b>Do part 1 before touching the pane.</b> These commands name their element
+     explicitly, so their answer is the truth. If the pane then disagrees, the pane is being read
+     wrong — not the page.</p>
+
+  <div class="path" style="background:#FDE8E8;border-color:var(--red)">
+    <b class="h" style="color:var(--red)">Before you read the pane — confirm what is selected</b>
+    <div><b>This section has two elements, one inside the other, and they own different listeners.</b>
+      Selecting the wrong one is by far the most common way this exercise appears to fail.</div>
+    <table class="ref" style="margin-top:8px">
+      <tr><th>If the pane shows&hellip;</th><th>&hellip;you have selected</th><th>Do this</th></tr>
+      <tr><td><code>click</code>, <code>focus</code>, <code>mousedown</code></td>
+          <td><b>button#listen-btn</b> &mdash; correct</td><td>carry on</td></tr>
+      <tr><td><code>click</code> only, containing<br><code>div#delegate-parent</code></td>
+          <td><b>the container</b>, not the button</td>
+          <td>select the <b>button</b> row in the tree instead</td></tr>
+    </table>
+    <div style="margin-top:8px"><b>The five-second check:</b> press <kbd>Esc</kbd> and run
+      <code>$0.id</code> in the Console. It must print <code>"listen-btn"</code>.
+      If it prints <code>"delegate-parent"</code>, you are on the container.</div>
+    <div style="margin-top:6px">In the Elements tree the row you want reads
+      <code>&lt;button class="listen-btn" id="listen-btn"&gt;</code>. Clicking the dashed area
+      around the button selects the container instead &mdash; click the <b>green button itself</b>,
+      or the button's own row in the tree.</div>
+  </div>
+
+  <div class="try"><b class="h">Try this — part 2: reading the Event Listeners pane</b>
+    <ol>
+      <li>Inspect the <b>green button</b>, confirm <code>$0.id</code> is <code>"listen-btn"</code>,
+          then open the <b>Event Listeners</b> sidebar tab.</li>
+      <li><b>The pane groups by event type, not one row per listener.</b> With the button selected
+          you get three collapsed rows, alphabetically: <code>click</code>, <code>focus</code>,
+          <code>mousedown</code>.</li>
+      <li>Still short of rows? The pane is a small scrolling area — <b>scroll inside it</b> or widen
+          DevTools. And press the <b>&#8635; refresh</b> button at the pane's top-left; it does not
+          always repopulate on its own after you change selection.</li>
+      <li><b>Click the &#9656; on a row to expand it.</b> The individual listeners live
+          <em>inside</em> the type row, each with its target node and a
+          <code>source:line</code> link.</li>
+      <li>Now tick <b>Ancestors</b> and expand <code>click</code> again. It gains a second entry,
+          <code>div#delegate-parent</code> — the delegated listener, inherited from up the tree.</li>
+      <li>Untick <b>Ancestors</b> and it disappears again. That toggle is the whole lesson.</li>
+    </ol>
+  </div>
+
+  <div class="path"><b class="h">What the pane contains, per selection</b>
+    <table class="ref">
+      <tr><th></th><th>button#listen-btn selected</th><th>div#delegate-parent selected</th></tr>
+      <tr><td><b>Ancestors OFF</b></td>
+          <td><code>click</code>, <code>focus</code>, <code>mousedown</code><br>
+              <em>(all three on the button)</em></td>
+          <td><code>click</code> only<br><em>&larr; this is the screenshot state</em></td></tr>
+      <tr><td><b>Ancestors ON</b></td>
+          <td>same three, but <code>click</code> now expands to <b>two</b> entries:
+              <code>button#listen-btn</code> + <code>div#delegate-parent</code></td>
+          <td><code>click</code>, plus anything registered further up the tree</td></tr>
+    </table>
+
+    <div style="margin-top:10px"><b>All four controls in that pane's toolbar, left to right:</b></div>
+    <table class="ref">
+      <tr><th>Control</th><th>What it does</th></tr>
+      <tr><td><b>&#8635;</b> refresh</td>
+          <td>repopulates the pane. Press it if the list looks stale after changing selection.</td></tr>
+      <tr><td><b>Ancestors</b></td>
+          <td>include listeners registered on parent elements. <b>Default varies by Chrome build</b>
+              — check the box state in your own toolbar rather than assuming.</td></tr>
+      <tr><td><b>All / Blocking / Passive</b></td>
+          <td>leave on <b>All</b>. Choose Passive here and everything vanishes, because none of
+              these were registered <code>{passive:true}</code>.</td></tr>
+      <tr><td><b>Resolve Framework listeners</b></td>
+          <td>when a framework wraps your handler, this digs past the wrapper to show
+              <em>your</em> function and source line instead of the library's. Leave it ticked.</td></tr>
+    </table>
+
+    <div style="margin-top:8px">Getting to the tab:
+      <span class="step">Elements</span><span class="arrow">&rarr;</span>
+      <span class="step">sidebar tab strip</span><span class="arrow">&rarr;</span>
+      <span class="step">Event Listeners</span>
+      <span style="color:var(--ink3)">(behind the &raquo; chevron on a narrow dock)</span></div>
+  </div>
+  <p class="answer"><b>The React note:</b> React 17+ attaches listeners at the root container, not on
+     your elements. The pane will often point at <code>#root</code> rather than the button you clicked.
+     That is where the listener genuinely lives.</p>
+</section>
+
+<!-- 10 -->
+<section>
+  <h2><span class="num">10</span>DOM breakpoints</h2>
+  <p class="sub">Three buttons, three breakpoint types. Set the breakpoint first.</p>
+  <div class="demo">
+    <div class="bp-target" id="bp-target">
+      <p style="margin:0 0 8px;font-weight:700">Watch this container</p>
+      <ul id="bp-list" style="margin:0 0 10px 18px"><li>existing item</li></ul>
+      <span id="bp-doomed" style="display:inline-block;padding:6px 12px;border-radius:6px;
+        background:#fff;border:2px solid var(--line)">delete me</span>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="lab" id="bp-attr">Change an attribute</button>
+      <button class="lab" id="bp-add">Add a child</button>
+      <button class="lab danger" id="bp-remove">Remove a node</button>
+    </div>
+    <div class="readout" id="bp-out">Set a DOM breakpoint, then click the matching button.</div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Set <b>attribute modifications</b> on <code>#bp-target</code>, then click
+          "Change an attribute". Execution pauses on the exact line that did it.</li>
+      <li>Resume (<kbd>F8</kbd>). Set <b>subtree modifications</b>, click "Add a child".</li>
+      <li>Resume. Set <b>node removal</b> on the "delete me" span, click "Remove a node".</li>
+      <li>Review and clear them all in the <b>DOM Breakpoints</b> sidebar tab.</li>
+    </ol>
+  </div>
+  <div class="path"><b class="h">Exact path</b>
+    <span class="step">right-click the node in the Elements tree</span><span class="arrow">&rarr;</span>
+    <span class="step">Break on</span><span class="arrow">&rarr;</span>
+    <span class="step">subtree modifications / attribute modifications / node removal</span>
+    <div style="margin-top:6px">A blue dot appears beside the node. To review or clear them:
+      <span class="step">Elements</span><span class="arrow">&rarr;</span>
+      <span class="step">DOM Breakpoints</span> <span style="color:var(--ink3)">(sidebar tab, behind &raquo; if narrow)</span></div>
+    <div style="margin-top:6px">When it pauses, the yellow bar in Sources says
+      <b>"Paused on DOM breakpoint"</b>. <kbd>F8</kbd> resumes.</div>
+  </div>
+  <p class="answer"><b>What no stack trace gives you:</b> the answer to "which script is mutating this
+     node?" On a real site the culprit is usually a third-party tag you inherited.</p>
+</section>
+
+<!-- 11 -->
+<section>
+  <h2><span class="num">11</span>Shadow DOM and frames</h2>
+  <p class="sub">Separate inspection contexts — and a genuine asymmetry worth knowing.</p>
+  <div class="demo">
+    <div class="row" style="align-items:flex-start;gap:16px">
+      <open-widget></open-widget>
+      <closed-widget></closed-widget>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="lab" id="shadow-probe">Probe both from JavaScript</button>
+    </div>
+    <div class="readout" id="shadow-out">not probed yet</div>
+    <p style="margin:16px 0 6px;font-weight:700">And an iframe:</p>
+    <iframe class="frame-demo" id="lab-frame" title="Lab iframe"
+      srcdoc="&lt;body style='font:15px system-ui;padding:14px;margin:0;background:#EAF1FE'&gt;
+              &lt;h3 style='margin:0 0 6px'&gt;Inside the iframe&lt;/h3&gt;
+              &lt;p id='frame-para' style='margin:0'&gt;A separate document with its own DOM.&lt;/p&gt;
+              &lt;/body&gt;"></iframe>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Inspect both widgets. DevTools shows <code>#shadow-root (open)</code> on one and
+          <code>#shadow-root (closed)</code> on the other — <b>you can see inside both</b>.</li>
+      <li>Click "Probe both from JavaScript". The open root returns an object; the closed one
+          returns <code>null</code>.</li>
+      <li>Inspect the paragraph inside the iframe, then switch the Console into that frame using
+          the context dropdown and run
+          <code>document.getElementById('frame-para')</code>.</li>
+      <li>Switch back to <b>top</b> and run the same line — you get <code>null</code>.</li>
+    </ol>
+  </div>
+  <div class="path"><b class="h">Where the frame selector is</b>
+    <span class="step">Console</span><span class="arrow">&rarr;</span>
+    <span class="step">the dropdown in the Console toolbar that reads "top"</span><span class="arrow">&rarr;</span>
+    <span class="step">pick the iframe</span>
+    <div style="margin-top:6px">It sits just right of the clear (&#8856;) and filter controls. Everything
+      you type is evaluated in the selected context until you switch back to <b>top</b>.</div>
+  </div>
+  <p class="answer"><b>The asymmetry:</b> DevTools has privileged access, so a closed shadow root hides
+     nothing from you as a debugger — but it does hide it from page JavaScript.</p>
+</section>
+
+<!-- 12 -->
+<section>
+  <h2><span class="num">12</span>Accessibility tree</h2>
+  <p class="sub">Two buttons that look alike. One is invisible to a screen reader.</p>
+  <div class="demo">
+    <div class="a11y-row">
+      <button class="icon-btn" id="a11y-bad">&#128465;</button>
+      <button class="icon-btn good" id="a11y-good" aria-label="Delete item">&#128465;</button>
+      <div>
+        <label for="a11y-labelled" style="display:block;font-weight:600;margin-bottom:6px">Proper label</label>
+        <input type="text" id="a11y-labelled">
+      </div>
+      <input type="text" id="a11y-placeholder" placeholder="Placeholder only">
+    </div>
+    <div class="readout">Left button: no accessible name. Right button: <code>aria-label</code>.
+Last input: a placeholder is not a label.</div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Inspect the <b>red</b> icon button and open the <b>Accessibility</b> sidebar tab.
+          Read <b>Computed Properties</b>: its name is empty.</li>
+      <li>Inspect the <b>green</b> one. Same markup, same icon — name is "Delete item", and the pane
+          shows which source won.</li>
+      <li>Compare the two inputs. The labelled one gets its name from <code>&lt;label&gt;</code>;
+          the placeholder one has a weak name and no label.</li>
+      <li>Tick <b>Enable full-page accessibility tree</b>, then browse the page the way assistive
+          technology sees it.</li>
+    </ol>
+  </div>
+  <div class="path"><b class="h">Exact path</b>
+    <span class="step">Elements</span><span class="arrow">&rarr;</span>
+    <span class="step">sidebar tab strip (behind &raquo; if narrow)</span><span class="arrow">&rarr;</span>
+    <span class="step">Accessibility</span>
+    <div style="margin-top:6px">The pane has three parts: <b>Accessibility Tree</b>,
+      <b>ARIA Attributes</b>, and <b>Computed Properties</b> — the last one holds the computed
+      <em>name</em>, <em>role</em> and states.</div>
+    <div style="margin-top:6px">The full-page tree toggle is a checkbox at the top of that pane.</div>
+  </div>
+  <p class="answer"><b>Why this is the right last card:</b> the accessibility tree is the browser's
+     final answer about your HTML. An empty name on an icon button is a WCAG failure you cannot see
+     by looking at the page.</p>
+</section>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  console.log("%c HTML & DOM Lab ", "background:#7C5BC4;color:#fff;font-weight:700",
+              "Part 2 v2 — page ready.");
+
+  /* ---- 01 ---- */
+  (function renderFromJs() {
+    const card = document.createElement("div");
+    card.className = "edit-card";
+    card.innerHTML =
+      '<h3 style="margin:0 0 6px">Built by JavaScript</h3>' +
+      '<p style="margin:0 0 8px">None of this exists in the served HTML.</p>' +
+      '<ul style="margin:0 0 0 18px"><li>node one</li><li>node two</li><li>node three</li></ul>';
+    $("render-target").appendChild(card);
+  })();
+
+  /* ---- 05 ---- */
+  (function attrsVsProps() {
+    const text = $("ap-text"), check = $("ap-check"), out = $("ap-out");
+    function render() {
+      out.textContent =
+        "TEXT INPUT\n" +
+        "  attribute value : " + JSON.stringify(text.getAttribute("value")) + "   (never moves)\n" +
+        "  property  value : " + JSON.stringify(text.value) + "   (tracks you)\n" +
+        "  defaultValue    : " + JSON.stringify(text.defaultValue) + "\n\n" +
+        "CHECKBOX\n" +
+        "  attribute checked : " + (check.hasAttribute("checked") ? "present" : "absent") +
+        "   (never moves)\n" +
+        "  property  checked : " + check.checked + "   (tracks you)\n" +
+        "  defaultChecked    : " + check.defaultChecked;
+    }
+    text.addEventListener("input", render);
+    check.addEventListener("change", render);
+    render();
+  })();
+
+  /* ---- 09 ---- */
+  (function listeners() {
+    const btn = $("listen-btn"), out = $("listen-out");
+    // One counter per listener, so every one of the four stays visible.
+    const tally = {
+      "click      on button#listen-btn": 0,
+      "mousedown  on button#listen-btn": 0,
+      "focus      on button#listen-btn": 0,
+      "click      on div#delegate-parent  (delegated)": 0
+    };
+    function render() {
+      out.textContent =
+        "Each line below is ONE registered listener. The pane groups these by type,\n" +
+        "so the two 'click' lines both live inside the pane's single click row.\n\n" +
+        Object.keys(tally).map((k) => "  " + k + " : " + tally[k]).join("\n");
+    }
+    function bump(key) { tally[key] += 1; render(); }
+
+    btn.addEventListener("click",     () => bump("click      on button#listen-btn"));
+    btn.addEventListener("mousedown", () => bump("mousedown  on button#listen-btn"));
+    btn.addEventListener("focus",     () => bump("focus      on button#listen-btn"));
+    $("delegate-parent").addEventListener("click", function delegatedHandler(e) {
+      if (e.target.id === "listen-btn") {
+        bump("click      on div#delegate-parent  (delegated)");
+      }
+    });
+    render();
+  })();
+
+  /* ---- 10 ---- */
+  (function domBreakpoints() {
+    const target = $("bp-target"), list = $("bp-list"),
+          doomed = $("bp-doomed"), out = $("bp-out");
+    let attrN = 0, addN = 0;
+    $("bp-attr").addEventListener("click", function changeAttribute() {
+      attrN += 1;
+      target.setAttribute("data-state", "changed-" + attrN);
+      out.textContent = 'attribute modification: data-state="changed-' + attrN + '"';
+    });
+    $("bp-add").addEventListener("click", function addChild() {
+      addN += 1;
+      const li = document.createElement("li");
+      li.textContent = "added item " + addN;
+      list.appendChild(li);
+      out.textContent = "subtree modification: appended <li>added item " + addN + "</li>";
+    });
+    $("bp-remove").addEventListener("click", function removeNode() {
+      if (doomed && doomed.parentNode) {
+        doomed.parentNode.removeChild(doomed);
+        out.textContent = "node removal: the 'delete me' span is gone (reload to bring it back)";
+      } else {
+        out.textContent = "already removed — reload the page to try again";
+      }
+    });
+  })();
+
+  /* ---- 11 ---- */
+  (function shadowWidgets() {
+    function build(root, label, colour) {
+      root.innerHTML =
+        '<div style="border:2px solid ' + colour + ';border-radius:10px;padding:14px;' +
+        'background:#fff;min-width:190px">' +
+        '<div style="font-weight:700;margin-bottom:6px">' + label + '</div>' +
+        '<button style="padding:6px 12px;border-radius:6px;border:2px solid ' + colour +
+        ';background:#fff;cursor:pointer">shadow button</button></div>';
+    }
+    class OpenWidget extends HTMLElement {
+      connectedCallback() {
+        if (this.shadowRoot) return;
+        build(this.attachShadow({ mode: "open" }), "#shadow-root (open)", "#2E9E63");
+      }
+    }
+    class ClosedWidget extends HTMLElement {
+      connectedCallback() {
+        if (this._built) return;
+        this._built = true;
+        build(this.attachShadow({ mode: "closed" }), "#shadow-root (closed)", "#D94B3C");
+      }
+    }
+    customElements.define("open-widget", OpenWidget);
+    customElements.define("closed-widget", ClosedWidget);
+
+    $("shadow-probe").addEventListener("click", () => {
+      const open = document.querySelector("open-widget");
+      const closed = document.querySelector("closed-widget");
+      $("shadow-out").textContent =
+        "From page JavaScript:\n" +
+        "  openWidget.shadowRoot   -> " + (open.shadowRoot ? "ShadowRoot object" : "null") + "\n" +
+        "  closedWidget.shadowRoot -> " + (closed.shadowRoot ? "ShadowRoot object" : "null") + "\n\n" +
+        "But DevTools shows the contents of BOTH. It has privileged access;\n" +
+        "your page code does not.";
+    });
+  })();
+})();
+</script>
+</body>
+</html>
