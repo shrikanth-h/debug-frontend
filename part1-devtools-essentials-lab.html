@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DevTools Essentials Lab — Part 1 hands-on (v2)</title>
+<title>DevTools Essentials Lab, Part 1 hands-on (v2)</title>
 
 <style>
-/* LAB_SEARCH_TOKEN_7 — planted in the CSS, the inline JS and an injected script,
+/* LAB_SEARCH_TOKEN_7, planted in the CSS, the inline JS and an injected script,
    so section 07's cross-file search finds it in three different places. */
 
 :root{
@@ -88,14 +88,14 @@ button.lab.on{background:var(--blue);color:#fff}
 /* 04 + 08 */
 .bp{padding:16px;border-radius:10px;font-weight:700;
   background:#E8F6EE;border:2px solid var(--green)}
-.bp::after{content:"WIDE  —  viewport >= 900px"}
+.bp::after{content:"WIDE  ·  viewport >= 900px"}
 @media (max-width:899px){
   .bp{background:#FFF4E8;border-color:var(--amber)}
-  .bp::after{content:"NARROW  —  viewport < 900px"}
+  .bp::after{content:"NARROW  ·  viewport < 900px"}
 }
 @media (max-width:599px){
   .bp{background:#FDE8E8;border-color:var(--red)}
-  .bp::after{content:"MOBILE  —  viewport < 600px"}
+  .bp::after{content:"MOBILE  ·  viewport < 600px"}
 }
 .touchbox{margin-top:12px;padding:14px;border-radius:8px;border:2px solid var(--line);
   background:#F7F4EC;font-weight:600}
@@ -114,10 +114,10 @@ button.lab.on{background:var(--blue);color:#fff}
 /* 05 */
 .scheme{padding:16px;border-radius:10px;font-weight:700;
   background:#FFF8DC;border:2px solid var(--amber);color:#5a4a12}
-.scheme::after{content:"LIGHT  —  prefers-color-scheme: light"}
+.scheme::after{content:"LIGHT  ·  prefers-color-scheme: light"}
 @media (prefers-color-scheme:dark){
   .scheme{background:#1e293b;border-color:#64748b;color:#e2e8f0}
-  .scheme::after{content:"DARK  —  emulation is working"}
+  .scheme::after{content:"DARK  ·  emulation is working"}
 }
 .motion{margin-top:10px;padding:14px;border-radius:8px;border:2px solid var(--line);
   background:#fff;font-weight:600}
@@ -135,7 +135,7 @@ button.lab.on{background:var(--blue);color:#fff}
 <header>
   <span class="ver">PART 1 &middot; HANDS-ON &middot; V2</span>
   <h1>DevTools Essentials Lab</h1>
-  <p>A working exercise for every card in Part 1 — the twelve everyday DevTools features.</p>
+  <p>A working exercise for every card in Part 1, the twelve everyday DevTools features.</p>
   <p class="note">Part 1 is about the toolbox rather than the page, so this lab's job is to
      <b>trigger</b> things: real requests, real console traffic, real browser-reported issues.</p>
 
@@ -150,7 +150,7 @@ button.lab.on{background:var(--blue);color:#fff}
 
 <!-- ORIENTATION MAP -->
 <section style="border-top:none;padding-top:0">
-  <h2>First — a map of the DevTools window</h2>
+  <h2>First, a map of the DevTools window</h2>
   <p class="sub">Three of the controls in this lab are not where people expect. Here is where they live.</p>
 
   <div class="map">
@@ -171,17 +171,17 @@ button.lab.on{background:var(--blue);color:#fff}
   </div>
 
   <div class="legend">
-    <div><span class="pin">1</span><span><b>Panel tabs</b> — Elements, Console, Sources, Network.
+    <div><span class="pin">1</span><span><b>Panel tabs</b>: Elements, Console, Sources, Network.
       If a panel is missing, it is under <b>&#8942; &rarr; More tools</b>.</span></div>
     <div><span class="pin">2</span><span><b>Error &amp; issue counters</b> (top right).
-      <b>Clicking the flag counter opens the Issues tab directly</b> — the fastest route in section 12.</span></div>
-    <div><span class="pin">3</span><span><b>&#9881; Settings</b> — or press <kbd>F1</kbd>.
+      <b>Clicking the flag counter opens the Issues tab directly</b>. It is the fastest route in section 12.</span></div>
+    <div><span class="pin">3</span><span><b>&#9881; Settings</b>, or press <kbd>F1</kbd>.
       This is where <b>Ignore List</b> lives (section 11).</span></div>
-    <div><span class="pin">4</span><span><b>&#8942; More options</b> — dock side, and
+    <div><span class="pin">4</span><span><b>&#8942; More options</b>, dock side, and
       <b>More tools</b> for Issues, Coverage, Animations, Changes, Layers, Rendering.</span></div>
-    <div><span class="pin">5</span><span><b>The drawer</b> — opens under any panel with <kbd>Esc</kbd>.
+    <div><span class="pin">5</span><span><b>The drawer</b>. Opens under any panel with <kbd>Esc</kbd>.
       Console and Issues both live here (section 06).</span></div>
-    <div><span class="pin">6</span><span><b>Command Menu</b> — <kbd>Ctrl+Shift+P</kbd>. Type the name of
+    <div><span class="pin">6</span><span><b>Command Menu</b>, <kbd>Ctrl+Shift+P</kbd>. Type the name of
       anything above and it opens. When lost, use this.</span></div>
   </div>
 </section>
@@ -216,7 +216,7 @@ button.lab.on{background:var(--blue);color:#fff}
   <div class="demo">
     <div class="pick-outer">outer
       <div class="pick-mid" style="margin-top:12px">middle
-        <div class="pick-inner" style="margin-top:12px">inner — aim here</div>
+        <div class="pick-inner" style="margin-top:12px">inner. Aim here</div>
       </div>
     </div>
   </div>
@@ -224,7 +224,7 @@ button.lab.on{background:var(--blue);color:#fff}
     <ol>
       <li>Press <kbd>Ctrl+Shift+C</kbd> to arm the picker (the arrow-in-a-box icon, far left of the
           DevTools toolbar).</li>
-      <li>Hover slowly — the tooltip shows tag, size and colours <em>before</em> you click.</li>
+      <li>Hover slowly. The tooltip shows tag, size and colours <em>before</em> you click.</li>
       <li>Click the inner box, then press <kbd>&uarr;</kbd> in the Elements tree to walk up to its parents.</li>
     </ol>
   </div>
@@ -240,10 +240,10 @@ button.lab.on{background:var(--blue);color:#fff}
   </div>
   <div class="try"><b class="h">Try this</b>
     <ol>
-      <li><b>Elements</b> — the boxes from section 02 and their styles.</li>
-      <li><b>Console</b> — this page logged a startup banner on load.</li>
-      <li><b>Sources</b> — this page, plus the injected script from section 07.</li>
-      <li><b>Network</b> — click the button, then find the request in the list.</li>
+      <li><b>Elements</b>. The boxes from section 02 and their styles.</li>
+      <li><b>Console</b>. This page logged a startup banner on load.</li>
+      <li><b>Sources</b>. This page, plus the injected script from section 07.</li>
+      <li><b>Network</b>. Click the button, then find the request in the list.</li>
     </ol>
   </div>
   <p class="answer"><b>The habit:</b> route the symptom to a panel before poking. Wrong layout &rarr;
@@ -253,13 +253,13 @@ button.lab.on{background:var(--blue);color:#fff}
 <!-- 04 -->
 <section>
   <h2><span class="num">04</span>Docking</h2>
-  <p class="sub">Docking is not cosmetic — it changes the viewport you are debugging.</p>
+  <p class="sub">Docking is not cosmetic. It changes the viewport you are debugging.</p>
   <div class="demo"><div class="bp"></div></div>
   <div class="try"><b class="h">Try this</b>
     <ol>
       <li>Dock <b>left</b> or <b>right</b> and watch the box change from WIDE to NARROW.</li>
       <li>Dock <b>bottom</b> and it returns to WIDE.</li>
-      <li>Undock into a separate window — the page gets its full width back.</li>
+      <li>Undock into a separate window. The page gets its full width back.</li>
     </ol>
   </div>
   <div class="path"><b class="h">Exact path</b>
@@ -306,7 +306,7 @@ button.lab.on{background:var(--blue);color:#fff}
     <ol>
       <li>Click <b>Start heartbeat logging</b>. It logs one line every two seconds.</li>
       <li>Open the <b>Console</b> panel and watch the beats arrive.</li>
-      <li>Now switch to the <b>Elements</b> panel. The Console is replaced — you can no longer see them.</li>
+      <li>Now switch to the <b>Elements</b> panel. The Console is replaced, so you can no longer see them.</li>
       <li>Press <kbd>Esc</kbd>. The <b>drawer</b> opens <em>underneath</em> Elements with Console inside it,
           and the beats are visible again while you keep inspecting.</li>
       <li>Press <kbd>Esc</kbd> again to close it. Stop the heartbeat when you're done.</li>
@@ -329,7 +329,7 @@ button.lab.on{background:var(--blue);color:#fff}
     <ol>
       <li>Press <kbd>Ctrl+Shift+F</kbd> to open the <b>Search</b> tab in the drawer.</li>
       <li>Search <code>LAB_SEARCH_TOKEN_7</code>. You get hits in more than one resource.</li>
-      <li>Click a result — it opens that file in <b>Sources</b> at the matching line.</li>
+      <li>Click a result. It opens that file in <b>Sources</b> at the matching line.</li>
     </ol>
   </div>
   <div class="path"><b class="h">If the shortcut is taken by something else</b>
@@ -338,7 +338,7 @@ button.lab.on{background:var(--blue);color:#fff}
     <span class="step">Search</span>
   </div>
   <p class="answer"><b>Not the same as <kbd>Ctrl+F</kbd>:</b> that searches inside one file.
-     This searches everything the browser loaded — bundles, injected scripts, third-party tags.</p>
+     This searches everything the browser loaded: bundles, injected scripts, third-party tags.</p>
 </section>
 
 <!-- 08 -->
@@ -353,12 +353,12 @@ button.lab.on{background:var(--blue);color:#fff}
     <ol>
       <li><kbd>Ctrl+Shift+M</kbd> toggles the device toolbar (the phone-and-tablet icon, second from
           the left in the DevTools toolbar).</li>
-      <li>Pick <b>iPhone 14</b> — 390 &times; 844. The first box goes MOBILE and the second flips to
+      <li>Pick <b>iPhone 14</b>, 390 &times; 844. The first box goes MOBILE and the second flips to
           <code>pointer: coarse</code>, because device presets enable touch emulation.</li>
       <li>Switch to <b>Responsive</b> and drag the width across 900 and 600.</li>
     </ol>
   </div>
-  <p class="answer"><b>The honest limit:</b> this emulates viewport, pointer type and DPR — never real
+  <p class="answer"><b>The honest limit:</b> this emulates viewport, pointer type and DPR, never real
      CPU, GPU or radio. Confirm on hardware before shipping.</p>
 </section>
 
@@ -375,15 +375,15 @@ button.lab.on{background:var(--blue);color:#fff}
   </div>
   <div class="try"><b class="h">Try this</b>
     <ol>
-      <li>Open the <b>Network</b> panel and click <b>Load three cacheable assets</b> — now the
+      <li>Open the <b>Network</b> panel and click <b>Load three cacheable assets</b>. Now the
           request list has something in it.</li>
       <li>Find the <b>Size</b> column. If you cannot see it, see the box below.</li>
       <li>Reload normally (<kbd>Ctrl+R</kbd>) and click the button again. Cached responses read
           <code>(memory cache)</code> or <code>(disk cache)</code> instead of a byte count.</li>
       <li>Now, <b>with DevTools open</b>, <b>right-click the browser's reload button</b> (the circular
-          arrow next to the address bar — <em>not</em> anything inside DevTools). Three options appear:
+          arrow next to the address bar, <em>not</em> anything inside DevTools). Three options appear:
           Normal reload, Hard reload, <b>Empty cache and hard reload</b>.</li>
-      <li>Run the third. The Size column fills with real byte counts — everything re-downloaded.</li>
+      <li>Run the third. The Size column fills with real byte counts. Everything re-downloaded.</li>
     </ol>
   </div>
   <div class="path"><b class="h">Can't see the Size column?</b>
@@ -391,7 +391,7 @@ button.lab.on{background:var(--blue);color:#fff}
     <span class="step">tick Size</span><br>
     The header row is <code>Name &middot; Status &middot; Type &middot; Initiator &middot; Size &middot; Time &middot; Waterfall</code>.
     Right-clicking it toggles columns. If the panel is narrow (docked bottom in a short drawer),
-    later columns are clipped — widen it or dock to the side.<br>
+    later columns are clipped. Widen it or dock to the side.<br>
     <b style="display:block;margin-top:8px">On <code>file://</code> there is no HTTP caching, so this
     section only works over http(s).</b>
   </div>
@@ -402,7 +402,7 @@ button.lab.on{background:var(--blue);color:#fff}
 <!-- 10 -->
 <section>
   <h2><span class="num">10</span>Preserve log</h2>
-  <p class="sub">A real navigation, so you can watch the console get wiped — or not.</p>
+  <p class="sub">A real navigation, so you can watch the console get wiped, or not wiped.</p>
   <div class="demo">
     <div class="row">
       <button class="lab" id="btn-nav">Log, then navigate</button>
@@ -411,13 +411,13 @@ button.lab.on{background:var(--blue);color:#fff}
   </div>
   <div class="try"><b class="h">Try this</b>
     <ol>
-      <li>With preserve <b>off</b>, click the button. It logs three lines then navigates —
+      <li>With preserve <b>off</b>, click the button. It logs three lines then navigates,
           and the console is wiped before you can read them.</li>
       <li>Turn it <b>on</b> using either path below.</li>
       <li>Click again. The pre-navigation logs survive, separated by a navigation divider.</li>
     </ol>
   </div>
-  <div class="path"><b class="h">Two separate settings — the Console and the Network panel each have their own</b>
+  <div class="path"><b class="h">Two separate settings. The Console and the Network panel each have their own</b>
     <div style="margin-top:6px">
       <b>Console:</b>
       <span class="step">Console panel</span><span class="arrow">&rarr;</span>
@@ -430,7 +430,7 @@ button.lab.on{background:var(--blue);color:#fff}
       <span class="step">checkbox in the top toolbar</span>
     </div>
     <div style="margin-top:8px">Chrome's documentation calls it <b>Preserve log</b>. Recent builds
-      label the Network one <b>Keep log</b> — <b>same control, renamed.</b> If you see "Keep log",
+      label the Network one <b>Keep log</b>. <b>Same control, renamed.</b> If you see "Keep log",
       that is the one.</div>
     <b style="display:block;margin-top:8px">Needs http(s):</b> on <code>file://</code> Chrome blocks
     this navigation ("'file:' URLs are treated as unique security origins").
@@ -457,7 +457,7 @@ button.lab.on{background:var(--blue);color:#fff}
     </ol>
   </div>
   <div class="path"><b class="h">Exact path to the Ignore List</b>
-    <span class="step">&#9881; Settings</span> <span style="color:var(--ink3)">(gear, top-right of DevTools — or press <kbd>F1</kbd>)</span>
+    <span class="step">&#9881; Settings</span> <span style="color:var(--ink3)">(gear, top-right of DevTools, or press <kbd>F1</kbd>)</span>
     <span class="arrow">&rarr;</span>
     <span class="step">Ignore List</span> <span style="color:var(--ink3)">(left sidebar of the Settings dialog)</span>
     <span class="arrow">&rarr;</span>
@@ -470,7 +470,7 @@ button.lab.on{background:var(--blue);color:#fff}
     <span class="step">type <code>vendor-lib</code></span>
     <span class="arrow">&rarr;</span>
     <span class="step">Add</span>
-    <div style="margin-top:8px">This pane was called <b>Blackboxing</b> until Chrome 106 — that is why
+    <div style="margin-top:8px">This pane was called <b>Blackboxing</b> until Chrome 106, which is why
       older articles send you somewhere that no longer exists. It already ships with
       <code>/node_modules/</code> and <code>/bower_components/</code> ignored by default.</div>
     <div style="margin-top:8px"><b>Faster route once you know it:</b> right-click the
@@ -496,19 +496,19 @@ button.lab.on{background:var(--blue);color:#fff}
   <div class="try"><b class="h">Try this</b>
     <ol>
       <li>Click both buttons.</li>
-      <li>Open the Issues tab — three routes below, easiest first.</li>
+      <li>Open the Issues tab. Three routes below, easiest first.</li>
       <li>Expand the CORS entry. It names the exact missing header and links the specification,
           where the Console only said "Failed to fetch".</li>
     </ol>
   </div>
   <div class="path"><b class="h">Three ways to open Issues</b>
-    <div style="margin-top:6px"><b>1. Fastest —</b>
+    <div style="margin-top:6px"><b>1. Fastest.</b>
       <span class="step">click the &#9873; issue counter, top-right of the DevTools toolbar</span></div>
-    <div style="margin-top:6px"><b>2. Menu —</b>
+    <div style="margin-top:6px"><b>2. Menu.</b>
       <span class="step">&#8942; More options</span><span class="arrow">&rarr;</span>
       <span class="step">More tools</span><span class="arrow">&rarr;</span>
       <span class="step">Issues</span></div>
-    <div style="margin-top:6px"><b>3. Command Menu —</b>
+    <div style="margin-top:6px"><b>3. Command Menu.</b>
       <span class="step">Ctrl+Shift+P</span><span class="arrow">&rarr;</span>
       <span class="step">type "Issues"</span></div>
     <div style="margin-top:8px">Once open, Issues lives in the <b>drawer</b> beside Console, so
@@ -523,11 +523,11 @@ button.lab.on{background:var(--blue);color:#fff}
 </div>
 
 <script>
-/* LAB_SEARCH_TOKEN_7 — second planting, in the page's own inline script. */
+/* LAB_SEARCH_TOKEN_7, second planting, in the page's own inline script. */
 (function () {
   "use strict";
   console.log("%c DevTools Essentials Lab ", "background:#2F6FE0;color:#fff;font-weight:700",
-              "Part 1 v2 — page ready.");
+              "Part 1 v2, page ready.");
   const $ = (id) => document.getElementById(id);
 
   /* ---- 01 ---- */
@@ -537,7 +537,7 @@ button.lab.on{background:var(--blue);color:#fff}
     const el = document.createElement("div");
     el.className = "injected-node";
     el.dataset.index = String(added);
-    el.textContent = "injected node #" + added + " — not in View Source";
+    el.textContent = "injected node #" + added + ", not in View Source";
     el.style.cssText = "margin-top:8px;padding:10px;border-radius:8px;background:#E8F6EE;" +
       "border:2px solid #2E9E63;font-weight:600";
     $("mutate-target").appendChild(el);
@@ -556,7 +556,7 @@ button.lab.on{background:var(--blue);color:#fff}
         Math.round(performance.now() - t0) + " ms\nNow find this request in the Network panel.";
     } catch (err) {
       out.textContent = "request failed: " + err.message +
-        "\nExpected on file:// — open this page over http(s).";
+        "\nExpected on file://. Open this page over http(s).";
     }
   });
 
@@ -572,7 +572,7 @@ button.lab.on{background:var(--blue);color:#fff}
     }
     hb = setInterval(() => {
       beat += 1;
-      console.log("heartbeat", beat, "— open Console, then switch to Elements and press Esc");
+      console.log("heartbeat", beat, "(open Console, then switch to Elements and press Esc)");
     }, 2000);
     $("hb-state").textContent = "logging every 2s";
     e.target.textContent = "Stop heartbeat logging";
@@ -581,8 +581,8 @@ button.lab.on{background:var(--blue);color:#fff}
 
   /* ---- 07 + 11 : injected "vendor" script ---- */
   const vendorSource = [
-    "// vendor-lib.js — a stand-in for a third-party dependency.",
-    "// LAB_SEARCH_TOKEN_7 — third planting, in an injected script.",
+    "// vendor-lib.js, a stand-in for a third-party dependency.",
+    "// LAB_SEARCH_TOKEN_7, third planting, in an injected script.",
     "window.vendorLibRun = function vendorLibRun(callback) {",
     "  return callback();",
     "};",
@@ -591,13 +591,13 @@ button.lab.on{background:var(--blue);color:#fff}
   const script = document.createElement("script");
   script.src = URL.createObjectURL(new Blob([vendorSource], { type: "text/javascript" }));
   script.onload = () => { $("inject-out").textContent =
-    "injected script: loaded as vendor-lib.js — find it in Sources"; };
+    "injected script: loaded as vendor-lib.js, find it in Sources"; };
   script.onerror = () => { $("inject-out").textContent = "injected script: failed to load"; };
   document.head.appendChild(script);
 
   $("btn-trace").addEventListener("click", () => {
     if (typeof window.vendorLibRun !== "function") {
-      console.warn("vendor-lib.js has not loaded yet — try again in a moment");
+      console.warn("vendor-lib.js has not loaded yet. Try again in a moment");
       return;
     }
     window.vendorLibRun(function appCallback() {
@@ -631,7 +631,7 @@ button.lab.on{background:var(--blue);color:#fff}
         lines.join("\n");
     } catch (err) {
       out.textContent = "requests failed: " + err.message +
-        "\nExpected on file:// — open this page over http(s).";
+        "\nExpected on file://. Open this page over http(s).";
     }
   });
 
@@ -641,9 +641,9 @@ button.lab.on{background:var(--blue);color:#fff}
   $("nav-note").textContent = "current page: " + page;
   if (page === "B") console.log("…and this is page B, after the navigation.");
   $("btn-nav").addEventListener("click", () => {
-    console.log("about to navigate — line 1 of 3");
-    console.warn("about to navigate — line 2 of 3");
-    console.error("about to navigate — line 3 of 3");
+    console.log("about to navigate, line 1 of 3");
+    console.warn("about to navigate, line 2 of 3");
+    console.error("about to navigate, line 3 of 3");
     location.search = page === "A" ? "?page=b" : "?page=a";
   });
 
@@ -652,10 +652,10 @@ button.lab.on{background:var(--blue);color:#fff}
     const out = $("issue-out");
     try {
       await fetch("https://example.com/", { mode: "cors" });
-      out.textContent = "unexpectedly succeeded — check the Network panel";
+      out.textContent = "unexpectedly succeeded. Check the Network panel";
     } catch (err) {
       out.textContent = "CORS request blocked (expected).\nConsole says: \"" + err.message +
-        "\"\nNow open Issues — it names the missing header instead.";
+        "\"\nNow open Issues. It names the missing header instead.";
     }
   });
 
@@ -666,7 +666,7 @@ button.lab.on{background:var(--blue);color:#fff}
     catch (e) { /* ignore */ }
     $("issue-out").textContent = fired
       ? "Deprecation triggered. Open Issues and look for the deprecated-API entry."
-      : "This browser blocked the deprecated call outright — the CORS button still works.";
+      : "This browser blocked the deprecated call outright. The CORS button still works.";
   });
 })();
 </script>
