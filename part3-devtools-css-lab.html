@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DevTools CSS Debugging Lab — Part 3 hands-on</title>
+<title>DevTools CSS Debugging Lab, Part 3 hands-on (v2)</title>
 
 <style>
 /* ============================================================
-   PAGE CHROME  (not part of the lessons — ignore while inspecting)
+   PAGE CHROME  (not part of the lessons, ignore while inspecting)
    ============================================================ */
 :root{
   --paper:#FDFAF2; --ink:#1A1714; --ink2:#4A443C; --ink3:#8C8478;
@@ -59,7 +59,7 @@ button.spec  { color:#777;    }   /* 0,0,1 */
 /* ============ 03 INHERITANCE ============ */
 .inherit-parent{color:#1e293b;font-family:Georgia,"Times New Roman",serif;font-style:italic;
   border:2px solid var(--line);border-radius:10px;padding:16px}
-/* .inherit-child declares NOTHING — on purpose */
+/* .inherit-child declares NOTHING, on purpose */
 
 /* ============ 04 COMPUTED ============ */
 .computed-box{font-size:1.25rem;width:60%;padding:0.75em;margin-top:2ch;line-height:1.6;
@@ -133,7 +133,7 @@ button.spec  { color:#777;    }   /* 0,0,1 */
        to a non-replaced inline element. This is what CSS Overview reports. */
 .inline-unused{display:inline;width:220px;height:60px;margin-top:40px;
   background:#FDE8E8;padding:2px 6px}
-/* (c) rules that match nothing — these are for the COVERAGE panel, not CSS Overview */
+/* (c) rules that match nothing, these are for the COVERAGE panel, not CSS Overview */
 .never-matched-alpha{color:#111}
 .never-matched-beta {margin:0}
 .never-matched-gamma{display:block}
@@ -141,7 +141,7 @@ button.spec  { color:#777;    }   /* 0,0,1 */
 /* ============ 13 @LAYER ============ */
 @layer base, utilities;
 @layer base      { #layer-target { color:#D94B3C; } }   /* 1,0,0 */
-@layer utilities { .layer-box p  { color:#2E9E63; } }   /* 0,1,1 — later layer wins */
+@layer utilities { .layer-box p  { color:#2E9E63; } }   /* 0,1,1, later layer wins */
 .layer-unlayered { color:#7C5BC4; }                     /* unlayered beats all layers */
 .layer-box{border:2px solid var(--line);border-radius:10px;padding:16px;background:#fff}
 .layer-box p{font-weight:700;margin:6px 0}
@@ -166,10 +166,10 @@ button.spec  { color:#777;    }   /* 0,0,1 */
   resize:horizontal;overflow:auto;width:320px;min-width:180px;max-width:100%;
   border:2px dashed var(--blue);border-radius:10px;padding:12px;background:#fff}
 .cq-item{padding:16px;border-radius:8px;background:#EEE;font-weight:700}
-.cq-item::after{content:" — narrow container"}
+.cq-item::after{content:", narrow container"}
 @container card (min-width:420px){
   .cq-item{background:var(--green);color:#fff}
-  .cq-item::after{content:" — wide container (@container matched)"}
+  .cq-item::after{content:", wide container (@container matched)"}
 }
 </style>
 </head>
@@ -178,10 +178,11 @@ button.spec  { color:#777;    }   /* 0,0,1 */
 <div class="wrap">
 
 <header>
+  <span class="ver">V2, CORRECTED</span>
   <h1>DevTools CSS Debugging Lab</h1>
   <p>A minimal reproduction for every card in Part 3, plus the three additions from the comments.</p>
   <p class="note">Open DevTools (F12) and work down the page. Every section is built so the feature
-     you are looking for is actually present — which is the thing a real production site cannot promise.</p>
+     you are looking for is actually present, which is the thing a real production site cannot promise.</p>
 </header>
 
 <!-- 01 -->
@@ -192,7 +193,7 @@ button.spec  { color:#777;    }   /* 0,0,1 */
   <div class="try"><b class="h">Try this</b>
     <ol>
       <li>Right-click the blue card &rarr; <b>Inspect</b>.</li>
-      <li>In <b>Styles</b>, hover a declaration — a checkbox appears to its left. Untick <code>border</code>.</li>
+      <li>In <b>Styles</b>, hover a declaration. A checkbox appears to its left. Untick <code>border</code>.</li>
       <li>Click the <code>#EAF1FE</code> swatch and drag inside the colour picker; the page updates live.</li>
       <li>Click any numeric value and press <b>&uarr;</b>/<b>&darr;</b> to step it. <b>Shift+&uarr;</b> steps by 10.</li>
     </ol>
@@ -209,7 +210,7 @@ button.spec  { color:#777;    }   /* 0,0,1 */
   </div>
   <div class="try"><b class="h">Try this</b>
     <ol>
-      <li>Inspect the button. Read the Styles pane <b>top to bottom</b> — that is cascade order, winner first.</li>
+      <li>Inspect the button. Read the Styles pane <b>top to bottom</b>. That is cascade order, winner first.</li>
       <li>Find the two struck-through <code>color</code> declarations.</li>
       <li>Untick the winning <code>#spec-target</code> rule; the next one down comes alive. Untick that too
           and the grey type selector finally applies.</li>
@@ -217,7 +218,7 @@ button.spec  { color:#777;    }   /* 0,0,1 */
     </ol>
   </div>
   <p class="answer"><b>Answer:</b> <code>#spec-target</code> (1,0,0) beats <code>.spec-btn</code> (0,1,0)
-     beats <code>button.spec</code> (0,0,1). Source order never enters into it — specificity settles it first.</p>
+     beats <code>button.spec</code> (0,0,1). Source order never enters into it. Specificity settles it first.</p>
   <p class="where"><b>Where:</b> Elements &rarr; Styles.</p>
 </section>
 
@@ -254,7 +255,7 @@ button.spec  { color:#777;    }   /* 0,0,1 */
     <ol>
       <li>Inspect the box, open the <b>Computed</b> tab, tick <b>Show all</b>.</li>
       <li>Filter for <code>padding</code>. The declared <code>0.75em</code> is reported in px.</li>
-      <li>Expand the arrow beside a computed property — it names the rule that set it, with a source link.</li>
+      <li>Expand the arrow beside a computed property. It names the rule that set it, with a source link.</li>
       <li>Change <code>font-size</code> in Styles and watch <code>padding</code> and <code>line-height</code>
           move with it, because <code>em</code> and unitless line-height are relative to it.</li>
     </ol>
@@ -269,15 +270,15 @@ button.spec  { color:#777;    }   /* 0,0,1 */
   <div class="demo"><div class="boxmodel">margin 24/40/16/8 &middot; border 6 &middot; padding 12/28</div></div>
   <div class="try"><b class="h">Try this</b>
     <ol>
-      <li>Inspect it and open the <b>Computed</b> tab — the box model diagram sits at the <b>top</b> of it.</li>
+      <li>Inspect it and open the <b>Computed</b> tab. The box model diagram sits at the <b>top</b> of it.</li>
       <li>If your DevTools is docked wide, Computed renders beside Styles and the diagram is visible
           without switching tabs. In a narrow dock you must click <b>Computed</b>.</li>
-      <li>Hover each ring in the diagram — the matching region highlights on the page.</li>
+      <li>Hover each ring in the diagram. The matching region highlights on the page.</li>
       <li><b>Double-click a number in the diagram and type a new one.</b> It edits the live style.</li>
     </ol>
   </div>
   <p class="where"><b>Where:</b> Elements &rarr; <b>Computed</b> (top of the pane).
-     <b>Not</b> the Layout tab — Layout is Grid and Flexbox overlays only (see 06 and 07).</p>
+     <b>Not</b> the Layout tab. Layout is Grid and Flexbox overlays only (see 06 and 07).</p>
 </section>
 
 <!-- 06 -->
@@ -291,7 +292,7 @@ button.spec  { color:#777;    }   /* 0,0,1 */
     <ol>
       <li>Inspect the purple container. Click the grey <b>flex</b> badge beside it in the Elements tree.</li>
       <li>An overlay appears on the page showing the axes and the free space between items.</li>
-      <li>Open the <b>Layout</b> tab — the container is listed under <b>Flexbox</b> with overlay options.</li>
+      <li>Open the <b>Layout</b> tab. The container is listed under <b>Flexbox</b> with overlay options.</li>
       <li>In Styles, change <code>justify-content</code> to <code>center</code>, then
           <code>flex-direction</code> to <code>column</code>. Watch the axes swap.</li>
     </ol>
@@ -328,9 +329,9 @@ button.spec  { color:#777;    }   /* 0,0,1 */
   <div class="try"><b class="h">Try this</b>
     <ol>
       <li>Inspect the button. Click <b>:hov</b> in the Styles toolbar.</li>
-      <li>Tick <code>:hover</code> — the style holds even with your mouse elsewhere.</li>
+      <li>Tick <code>:hover</code>. The style holds even with your mouse elsewhere.</li>
       <li>Now tick <code>:focus-visible</code>. The amber ring pins open so you can measure its contrast.
-          <b>This is the only way to audit a focus indicator</b> — the moment you click into DevTools,
+          <b>This is the only way to audit a focus indicator</b>. The moment you click into DevTools,
           real focus leaves the button.</li>
       <li>The full list is <code>:active :hover :focus :focus-within :focus-visible :target</code>.</li>
     </ol>
@@ -341,14 +342,14 @@ button.spec  { color:#777;    }   /* 0,0,1 */
 <!-- 09 -->
 <section>
   <h2><span class="num">09</span>CSS variables &amp; the silent fallback</h2>
-  <p class="sub">One token resolves. One is misspelled — and nothing complains.</p>
+  <p class="sub">One token resolves. One is misspelled, and nothing complains.</p>
   <div class="demo">
-    <div class="var-good">var(--brand-color) &mdash; resolves</div>
-    <div class="var-typo">var(--brand-colour, #9ca3af) &mdash; misspelled, fallback wins</div>
+    <div class="var-good">var(--brand-color), resolves</div>
+    <div class="var-typo">var(--brand-colour, #9ca3af), misspelled, fallback wins</div>
   </div>
   <div class="try"><b class="h">Try this</b>
     <ol>
-      <li>Inspect the blue box and hover <code>var(--brand-color)</code> — the resolved value appears.</li>
+      <li>Inspect the blue box and hover <code>var(--brand-color)</code>. The resolved value appears.</li>
       <li>Inspect the grey box. Same syntax, no error anywhere, and the design token was simply ignored.</li>
       <li>Open <b>Computed</b> on the grey box: it reports the fallback grey as fact.</li>
       <li>Edit <code>:root</code> in Styles and add <code>--brand-colour:#16a34a</code>. The grey box turns green.</li>
@@ -367,7 +368,7 @@ button.spec  { color:#777;    }   /* 0,0,1 */
   <div class="try"><b class="h">Try this</b>
     <ol>
       <li>Toggle the <b>Device Toolbar</b> (Ctrl+Shift+M) and drag the viewport across 1199 and 767.</li>
-      <li>In the device toolbar's <b>&hellip;</b> menu, enable <b>Show media queries</b> — coloured
+      <li>In the device toolbar's <b>&hellip;</b> menu, enable <b>Show media queries</b>. Coloured
           breakpoint bars appear above the ruler. Click one to jump to that width.</li>
       <li>Command Menu (Ctrl+Shift+P) &rarr; <b>Emulate CSS prefers-reduced-motion</b>.
           Section 11's animation stops.</li>
@@ -379,7 +380,7 @@ button.spec  { color:#777;    }   /* 0,0,1 */
 <!-- 11 -->
 <section>
   <h2><span class="num">11</span>Animations panel</h2>
-  <p class="sub">A 4-second infinite animation — long enough to actually catch.</p>
+  <p class="sub">A 4-second infinite animation, long enough to actually catch.</p>
   <div class="demo"><div class="anim-spinner"></div></div>
   <div class="try"><b class="h">Try this</b>
     <ol>
@@ -397,14 +398,14 @@ button.spec  { color:#777;    }   /* 0,0,1 */
   <h2><span class="num">12</span>CSS Overview, Coverage &amp; Changes</h2>
   <p class="sub">Three different tools that people conflate. This page feeds all three.</p>
   <div class="demo">
-    <p class="low-contrast">#b9b9b9 on white — fails WCAG AA, and CSS Overview knows it.</p>
+    <p class="low-contrast">#b9b9b9 on white. Fails WCAG AA, and CSS Overview knows it.</p>
     <span class="inline-unused">I am an inline span with width, height and margin-top that do nothing.</span>
   </div>
   <div class="try"><b class="h">Try this</b>
     <ol>
       <li>Command Menu &rarr; <b>Show CSS Overview</b> &rarr; <b>Capture overview</b>.</li>
-      <li>Open <b>Contrast issues</b> — the grey paragraph is listed with its ratio.</li>
-      <li>Open <b>CSS declarations / unused declarations</b> — the inline span is there, because
+      <li>Open <b>Contrast issues</b>. The grey paragraph is listed with its ratio.</li>
+      <li>Open <b>CSS declarations / unused declarations</b>. The inline span is there, because
           <code>width</code>, <code>height</code> and <code>margin-top</code> do not apply to a
           non-replaced inline element.</li>
       <li>Now for rules that match <em>nothing</em>: Command Menu &rarr; <b>Show Coverage</b>, reload,
@@ -421,7 +422,7 @@ button.spec  { color:#777;    }   /* 0,0,1 */
 
 <!-- 13 -->
 <section>
-  <h2><span class="num new">13</span>@layer — the missing card</h2>
+  <h2><span class="num new">13</span>@layer, the missing card</h2>
   <p class="sub">An ID selector losing to a class selector, legitimately.</p>
   <div class="demo">
     <div class="layer-box">
@@ -433,36 +434,36 @@ button.spec  { color:#777;    }   /* 0,0,1 */
     <ol>
       <li>Inspect the first paragraph. Styles now groups rules under <code>@layer base</code> and
           <code>@layer utilities</code>.</li>
-      <li>The cascade-layers control appears in the Styles toolbar — open it to see the declared layer order.</li>
-      <li><code>#layer-target</code> — an ID — is struck through, beaten by <code>.layer-box p</code>,
+      <li>The cascade-layers control appears in the Styles toolbar. Open it to see the declared layer order.</li>
+      <li><code>#layer-target</code>, an ID, is struck through, beaten by <code>.layer-box p</code>,
           purely because <code>utilities</code> is declared after <code>base</code>.</li>
       <li>Inspect the second paragraph: its unlayered rule wins over everything layered.</li>
     </ol>
   </div>
   <p class="answer"><b>Answer:</b> green. Layers are compared <em>before</em> specificity, so specificity
      only breaks ties <em>within</em> a layer. That control only appears when the page actually uses
-     <code>@layer</code> — which is why you will never find it on a site like Amazon.</p>
+     <code>@layer</code>, which is why you will never find it on a site like Amazon.</p>
   <p class="where"><b>Where:</b> Elements &rarr; Styles.</p>
 </section>
 
 <!-- 14 -->
 <section>
-  <h2><span class="num new">14</span>Stacking context — z-index 9999 that loses</h2>
+  <h2><span class="num new">14</span>Stacking context, z-index 9999 that loses</h2>
   <p class="sub">One cause, one checkbox, instant fix.</p>
   <div class="demo">
     <div class="sc-stage">
       <div class="sc-parent"><div class="sc-child">I have z-index: 9999</div></div>
-      <div class="sc-sibling">I have z-index: 2 — and I win</div>
+      <div class="sc-sibling">I have z-index: 2, and I win</div>
     </div>
   </div>
   <div class="try"><b class="h">Try this</b>
     <ol>
       <li>Inspect the red box. It really does have <code>z-index:9999</code>.</li>
       <li>Inspect its parent <code>.sc-parent</code>. Its only declaration is
-          <code>opacity:0.99</code> — visually almost nothing, and it creates a stacking context.</li>
+          <code>opacity:0.99</code>, visually almost nothing, and it creates a stacking context.</li>
       <li><b>Untick <code>opacity</code>.</b> The red box jumps to the front immediately.</li>
       <li>Open the <b>Layers</b> panel (Command Menu &rarr; Show Layers). Note that it shows
-          <em>compositing</em> layers — related, but not the same thing. Chrome has no
+          <em>compositing</em> layers, related, but not the same thing. Chrome has no
           first-class stacking-context inspector.</li>
     </ol>
   </div>
@@ -470,7 +471,7 @@ button.spec  { color:#777;    }   /* 0,0,1 */
      <code>opacity</code> below 1, <code>transform</code>, <code>filter</code>, <code>will-change</code>,
      <code>contain</code>, <code>isolation:isolate</code>, <code>position:fixed</code> and a non-<code>auto</code>
      <code>z-index</code> on a positioned element <em>all</em> create one, silently.
-     If several are present at once, unticking one changes nothing — which is exactly what makes this
+     If several are present at once, unticking one changes nothing, which is exactly what makes this
      bug so frustrating in real code.</p>
   <p class="where"><b>Where:</b> Elements &rarr; Styles, then the Layers panel for context.</p>
 </section>
@@ -484,7 +485,7 @@ button.spec  { color:#777;    }   /* 0,0,1 */
   </div>
   <div class="try"><b class="h">Try this</b>
     <ol>
-      <li>Drag the resize handle past 420px. The item turns green — the viewport never changed.</li>
+      <li>Drag the resize handle past 420px. The item turns green, but the viewport never changed.</li>
       <li>Inspect the item: Styles shows the <code>@container card (min-width:420px)</code> block,
           greyed out when it does not match and active when it does.</li>
       <li>Inspect the container and find <code>container-type:inline-size</code>. Untick it and the
