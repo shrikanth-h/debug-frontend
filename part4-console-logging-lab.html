@@ -1,0 +1,905 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Console &amp; Logging Lab, Part 4 hands-on</title>
+
+<style>
+:root{
+  --paper:#FDFAF2; --ink:#1A1714; --ink2:#4A443C; --ink3:#8C8478;
+  --hi:#FFE873; --line:#DED5C2;
+  --blue:#2F6FE0; --green:#2E9E63; --red:#D94B3C; --amber:#E0A32E; --purple:#7C5BC4;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:40px 24px 120px}
+header h1{font-size:34px;line-height:1.15;margin:0 0 8px;letter-spacing:-.02em}
+header p{color:var(--ink2);margin:0 0 6px}
+header .note{font-size:14px;color:var(--ink3)}
+.ver{display:inline-block;font:700 12px/1 ui-monospace,monospace;background:var(--green);
+  color:#fff;padding:5px 9px;border-radius:5px;margin-bottom:14px;letter-spacing:.08em}
+.warn{background:#FDE8E8;border:2px solid var(--red);border-radius:10px;
+  padding:14px 16px;margin:18px 0;font-size:15px}
+.warn b{display:block;margin-bottom:4px}
+
+section{border-top:2px solid var(--line);margin-top:38px;padding-top:26px}
+h2{font-size:22px;margin:0 0 4px;letter-spacing:-.01em}
+h2 .num{font:700 13px/1 ui-monospace,monospace;background:var(--ink);color:var(--paper);
+  padding:5px 8px;border-radius:5px;margin-right:10px;vertical-align:3px}
+.sub{color:var(--ink3);font-size:15px;margin:0 0 16px}
+
+.try{background:#FFF8DC;border-left:5px solid var(--hi);padding:12px 16px;margin:16px 0;
+  border-radius:0 8px 8px 0;font-size:15px}
+.try b.h{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:6px}
+.try ol{margin:0;padding-left:20px}
+.try li{margin:5px 0}
+code,kbd{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;
+  background:#EFEAD9;padding:1px 5px;border-radius:4px}
+kbd{border:1px solid var(--line);box-shadow:0 1px 0 var(--line)}
+.answer{font-size:14px;color:var(--ink2);margin-top:10px}
+.answer b{color:var(--ink)}
+.demo{border:2px dashed var(--line);border-radius:10px;padding:20px;margin:14px 0;background:#fff}
+.readout{font:13px/1.6 ui-monospace,monospace;background:#F3F0E7;border:1px solid var(--line);
+  border-radius:8px;padding:10px 12px;margin-top:10px;color:var(--ink2);white-space:pre-wrap}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button.lab{font:600 15px/1 system-ui,sans-serif;padding:10px 18px;border-radius:8px;
+  border:2px solid var(--blue);background:#fff;color:var(--blue);cursor:pointer}
+button.lab:hover{background:#EAF1FE}
+button.lab.on{background:var(--blue);color:#fff}
+button.lab.danger{border-color:var(--red);color:var(--red)}
+button.lab.danger:hover{background:#FDE8E8}
+
+.path{background:#EAF1FE;border:2px solid var(--blue);border-radius:10px;
+  padding:12px 14px;margin-top:12px;font-size:14.5px}
+.path b.h{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--blue);margin-bottom:6px}
+.path .step{font:13px ui-monospace,monospace;background:#fff;border:1px solid #BBD0F5;
+  border-radius:5px;padding:2px 7px;display:inline-block;margin:2px 0}
+.path .arrow{color:var(--ink3);margin:0 4px}
+
+.snip-label{font-weight:700;font-size:14px;margin:14px 0 4px}
+pre.snip{font:13px/1.5 ui-monospace,monospace;background:#1E1E1E;color:#E6E6E6;border-radius:8px;
+  padding:10px 12px;margin:0;overflow-x:auto;white-space:pre}
+.snip-note{font-size:13px;color:var(--ink3);margin:4px 0 0}
+table.ref{border-collapse:collapse;width:100%;margin-top:10px;font-size:14px}
+table.ref th,table.ref td{border:1px solid var(--line);padding:7px 9px;text-align:left;
+  vertical-align:top}
+table.ref th{background:#F3F0E7;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink3)}
+table.ref td:first-child{white-space:nowrap;width:1%}
+
+/* Console panel map */
+.map{border:2px solid var(--ink);border-radius:10px;overflow:hidden;background:#fff;
+  font:13px system-ui,sans-serif}
+.map .bar{display:flex;align-items:center;gap:6px;padding:7px 10px;background:#F1EEE7;
+  border-bottom:2px solid var(--ink);flex-wrap:wrap}
+.map .tab{padding:5px 9px;border-radius:5px;color:var(--ink2)}
+.map .tab.on{background:#fff;border-bottom:3px solid var(--blue);color:var(--ink);font-weight:700}
+.map .ctrl{border:1.5px solid var(--line);border-radius:5px;padding:3px 8px;background:#fff;
+  white-space:nowrap}
+.map .ctrl.hit{border-color:var(--red);background:#FDE8E8;font-weight:700}
+.map .grow{flex:1;min-width:110px;border:1.5px solid var(--line);border-radius:5px;
+  padding:3px 8px;background:#fff;color:var(--ink3)}
+.map .body{padding:12px;font:12.5px ui-monospace,monospace;color:var(--ink3);min-height:46px}
+.pin{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
+  border-radius:50%;background:var(--red);color:#fff;font:700 12px/1 ui-monospace,monospace;
+  vertical-align:middle;margin:0 3px;flex:none}
+.legend{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;font-size:14.5px}
+.legend div{display:flex;gap:8px;align-items:flex-start}
+@media (max-width:700px){ .legend{grid-template-columns:1fr} }
+
+.buybtn{font:700 16px system-ui,sans-serif;padding:12px 26px;border-radius:8px;
+  border:3px solid var(--green);background:#E8F6EE;color:var(--ink);cursor:pointer}
+.swatch{display:inline-block;padding:3px 10px;border-radius:5px;font-weight:700}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<header>
+  <span class="ver">PART 4 &middot; HANDS-ON</span>
+  <h1>Console &amp; Logging Lab</h1>
+  <p>A working exercise for every card in Part 4, getting more out of the Console than <code>console.log()</code>.</p>
+  <p class="note">Nearly every section here writes to the Console, so keep it open the whole way
+     through. Read the map below first. One default setting silently hides a third of what
+     this page logs.</p>
+
+  <div class="warn">
+    <b>Open this over http(s), not by double-clicking the file.</b>
+    Section <b>09</b> filters logs by source URL, which needs real URLs rather than a
+    <code>file://</code> path. Use the GitHub&nbsp;Pages link, or run
+    <code>python -m http.server</code> in the folder and open <code>http://localhost:8000/</code>.
+  </div>
+</header>
+
+<!-- MAP -->
+<section style="border-top:none;padding-top:0">
+  <h2>First, a map of the Console toolbar</h2>
+  <p class="sub">Six controls. Two of them decide whether you see anything at all.</p>
+
+  <div class="map">
+    <div class="bar">
+      <span class="tab on">Console</span><span class="tab">Issues</span>
+    </div>
+    <div class="bar">
+      <span class="ctrl">&#8856;</span>
+      <span class="ctrl">top &#9662;</span>
+      <span class="grow">Filter</span>
+      <span class="ctrl hit">Default levels &#9662;</span>
+      <span class="ctrl">&#128065;</span>
+      <span class="ctrl">&#9881;</span>
+    </div>
+    <div class="body">&gt; logs appear here</div>
+  </div>
+
+  <div class="legend">
+    <div><span class="pin">1</span><span><b>&#8856; Clear console</b>, or <kbd>Ctrl+L</kbd>.</span></div>
+    <div><span class="pin">2</span><span><b>Context dropdown ("top")</b>, which frame or
+      extension your commands run in.</span></div>
+    <div><span class="pin">3</span><span><b>Filter box</b>, plain text, <code>url:</code>,
+      <code>-</code> to exclude, or <code>/regex/</code> (section 09).</span></div>
+    <div><span class="pin">4</span><span><b>Level dropdown</b>.
+      <b style="color:var(--red)">This is the one that catches people.</b> It reads
+      <em>Default levels</em>, and Default <b>excludes Verbose</b>, so
+      <code>console.debug()</code> output is invisible until you change it.</span></div>
+    <div><span class="pin">5</span><span><b>&#128065; Create live expression</b>. Pins a value
+      that re-evaluates continuously (section 11).</span></div>
+    <div><span class="pin">6</span><span><b>&#9881; Console settings</b>, Preserve log,
+      Selected context only, Group similar, Log XMLHttpRequests, Autocomplete.</span></div>
+  </div>
+  <div class="path"><b class="h">If a log you expect is missing, check these three first</b>
+    <span class="step">Level dropdown</span> <span style="color:var(--ink3)">Set it to
+      <b>All levels</b>, or tick <b>Verbose</b></span><br>
+    <span class="step">Filter box</span> <span style="color:var(--ink3)">Make sure it is
+      empty; a stale filter hides everything that does not match</span><br>
+    <span class="step">Console sidebar</span> <span style="color:var(--ink3)">If the level dropdown
+      is greyed out, the sidebar is open and has taken over level filtering. Click the first icon
+      on the toolbar (Hide console sidebar) and the dropdown comes back</span>
+  </div>
+</section>
+
+<!-- 01 -->
+<section>
+  <h2><span class="num">01</span>Log levels</h2>
+  <p class="sub">Five methods, four levels, and one of them is hidden by default.</p>
+  <div class="demo">
+    <div class="row">
+      <button class="lab" id="lv-all">Fire all five levels</button>
+      <button class="lab" id="lv-clear">Clear console</button>
+    </div>
+    <div class="readout" id="lv-out">Nothing fired yet.</div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Open the Console and click <b>Fire all five levels</b>. Count what you see.
+          Most people get <b>four</b> lines, not five.</li>
+      <li>The missing one is <code>console.debug()</code>. Open the <b>level dropdown</b>
+          (it reads <em>Default levels</em>) and switch to <b>All levels</b>, or tick
+          <b>Verbose</b>. If the dropdown is greyed out and reads <em>Custom levels</em>, the
+          console sidebar is open. Close it with the first toolbar icon, or click
+          <b>verbose</b> in the sidebar instead.</li>
+      <li>Fire again. Now there are five.</li>
+      <li>Untick everything except <b>Errors</b>. Only <code>console.error()</code> survives.</li>
+      <li>Note that <code>console.log()</code> and <code>console.info()</code> both land under
+          <b>Info</b>. They are the same level, not two.</li>
+    </ol>
+  </div>
+  <div class="path"><b class="h">The mapping</b>
+    <table class="ref">
+      <tr><th>Method</th><th>Level</th><th>Shown by default?</th></tr>
+      <tr><td><code>console.debug()</code></td><td>Verbose</td>
+          <td style="color:var(--red)"><b>No</b></td></tr>
+      <tr><td><code>console.log()</code> / <code>console.info()</code></td><td>Info</td><td>Yes</td></tr>
+      <tr><td><code>console.warn()</code></td><td>Warnings</td><td>Yes</td></tr>
+      <tr><td><code>console.error()</code></td><td>Errors</td><td>Yes</td></tr>
+    </table>
+  </div>
+  <p class="answer"><b>Why it matters:</b> use the levels and the filter starts working for you.
+     A noisy app becomes readable by switching to Errors only. Log everything at Info and you have
+     thrown that away.</p>
+</section>
+
+<!-- 02 -->
+<section>
+  <h2><span class="num">02</span>Structured logging</h2>
+  <p class="sub">The same event, logged two ways. Both are searchable. Only one is reliable.</p>
+  <div class="demo">
+    <div class="row">
+      <button class="lab" id="st-prose">Log it as a sentence</button>
+      <button class="lab" id="st-obj">Log it as an object</button>
+      <button class="lab" id="st-many">Log 6 events with correlation IDs</button>
+    </div>
+    <div class="readout" id="st-out">Both write to the Console. Compare what you can do with them.</div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Click both of the first two buttons and look at the Console. The object is expandable;
+          the sentence is not.</li>
+      <li>In the filter box, type <code>checkout</code>. <b>Both lines match.</b> The filter is a
+          plain text search over what the Console renders, and that includes the one-line preview
+          of an object. So a word search alone is not where structured logging wins.</li>
+      <li>Now type <code>req-7f3</code>. The object matches, <b>the sentence disappears</b>. Nobody
+          wrote the request ID into the sentence. Prose holds only what the writer remembered to
+          mention; an object with a fixed shape carries every field, every time.</li>
+      <li>Type <code>/step: 'checkout'/</code> (slashes make it a regex). Only the object matches.
+          The sentence says "checkout page", but it has no <em>step</em> field to match against.
+          A word can appear anywhere; a field means one thing.</li>
+      <li>Click <b>Log 6 events</b>, then filter by <code>req-7f3</code> again. You get just that
+          request's events, across different steps of the flow.</li>
+    </ol>
+  </div>
+  <div class="path"><b class="h">How the filter actually matches</b>
+    It tests the text the Console displays for each line, not the object in memory. For an object,
+    that is the collapsed preview, so a field that falls outside a long, truncated preview will not
+    match. Keep the fields you search on near the front of the object.
+  </div>
+  <p class="answer"><b>Where this grows up:</b> put the same correlation ID in the browser log that
+     your gateway puts in its trace. A support ticket stops being "it broke on checkout" and becomes
+     one request you can follow end to end, across the browser, the BFF and every service behind it.
+     The bigger payoff is downstream: a log pipeline can query <code>correlationId = "req-7f3"</code>
+     exactly, which no amount of searching prose can do.</p>
+</section>
+
+<!-- 03 -->
+<section>
+  <h2><span class="num">03</span>console.table()</h2>
+  <p class="sub">The best thing in the Console for API responses.</p>
+  <div class="demo">
+    <div class="row">
+      <button class="lab" id="tb-all">Table the full array</button>
+      <button class="lab" id="tb-cols">Table only two columns</button>
+      <button class="lab" id="tb-obj">Table an object of objects</button>
+    </div>
+    <div class="readout" id="tb-out">Output goes to the Console.</div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Click <b>Table the full array</b>. Note the leading <code>(index)</code> column.
+          For an array that is 0, 1, 2, separate from the objects' own <code>id</code> field.</li>
+      <li><b>Click a column header</b> to sort by it. Not obvious, and very useful.</li>
+      <li>Click <b>Table only two columns</b>. That is
+          <code>console.table(data, ['name','status'])</code>. Wide API rows become readable.</li>
+      <li>Click <b>Table an object of objects</b>. Now <code>(index)</code> holds the keys instead
+          of numbers.</li>
+      <li>Right-click the table &rarr; <b>Copy table</b> to paste it into a ticket.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- 04 -->
+<section>
+  <h2><span class="num">04</span>Group related logs</h2>
+  <p class="sub">Collapse a whole workflow into one line.</p>
+  <div class="demo">
+    <div class="row">
+      <button class="lab" id="gr-open">Log an open group</button>
+      <button class="lab" id="gr-collapsed">Log a collapsed group</button>
+      <button class="lab" id="gr-nested">Log nested groups</button>
+    </div>
+    <div class="readout" id="gr-out">Output goes to the Console.</div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Clear the Console first (<kbd>Ctrl+L</kbd>) so older lines do not get in the way.</li>
+      <li>Click <b>Log an open group</b>. The header reads "starts OPEN" and its two lines show
+          straight away, with a &#9660; arrow.</li>
+      <li>Click <b>Log a collapsed group</b>. A new header appears reading "starts CLOSED", with a
+          &#9654; arrow and nothing under it. Click the arrow to reveal its three lines.</li>
+      <li>If you clicked both, the <b>first</b> Checkout group in the Console is the open one. Read
+          the header text, not the position, to tell them apart.</li>
+      <li>Click <b>nested groups</b> to see a checkout flow three levels deep.</li>
+      <li>Every <code>console.group()</code> needs a matching <code>console.groupEnd()</code>. Miss one and
+          everything logged afterwards stays trapped inside your group.</li>
+    </ol>
+  </div>
+  <p class="answer"><b>Use <code>console.groupCollapsed()</code> by default</b> for anything routine. An
+     expanded group for a flow that runs on every page load is just noise with an arrow on it.</p>
+</section>
+
+<!-- 05 -->
+<section>
+  <h2><span class="num">05</span>Measure time</h2>
+  <p class="sub">Real durations, without opening the Performance panel.</p>
+  <div class="demo">
+    <div class="row">
+      <button class="lab" id="tm-run">Run a timed three-stage task</button>
+      <button class="lab" id="tm-typo">End a timer with a typo in its label</button>
+    </div>
+    <div class="readout" id="tm-out">idle</div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Click <b>Run a timed three-stage task</b> and watch the Console. You get two intermediate
+          <code>console.timeLog('checkout')</code> readings and one final
+          <code>console.timeEnd('checkout')</code> total.</li>
+      <li>The label string ties the three calls together. Click <b>End a timer with a typo</b>. It
+          calls <code>console.timeEnd('chekout')</code>, one letter off, and Chrome warns
+          <em>Timer 'chekout' does not exist</em>. Nothing was measured, and in a real app the
+          warning is easy to miss among other logs.</li>
+    </ol>
+  </div>
+  <p class="answer"><b><code>console.timeLog()</code> is the underused one.</b> It prints the elapsed time
+     <em>without</em> stopping the timer, so you can mark stages inside one operation and see which
+     stage actually costs you.</p>
+</section>
+
+<!-- 06 -->
+<section>
+  <h2><span class="num">06</span>Trace execution</h2>
+  <p class="sub">"How did we even get here?" answered in one line.</p>
+  <div class="demo">
+    <button class="lab" id="tr-run">Call through three functions, then trace</button>
+    <div class="readout" id="tr-out">idle</div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Click the button. The trace arrives <b>already expanded</b> (&#9660;), under your label
+          "trace: who called addToCart?". It shows with Default levels, no dropdown change needed.</li>
+      <li>It is a <b>flat list</b>, one frame per line in the form <code>name @ file:line</code>, not
+          a nested tree. Read it <b>top down</b>: the innermost function first, each caller below it.
+          <code>addToCart</code>, then <code>updateCart</code>, then <code>handleClick</code>.</li>
+      <li>The last line, <code>(anonymous)</code>, is the button's click handler that started the
+          chain. Anonymous functions show up exactly like that, which is one reason to name them.</li>
+      <li>Click any file link on the right to open that line in <b>Sources</b>.</li>
+      <li>With no argument, <code>console.trace()</code> labels the entry <em>console.trace</em>.
+          Passing a string, as this page does, makes one trace easy to find among many.</li>
+    </ol>
+  </div>
+  <p class="answer"><b>Where it beats a breakpoint:</b> when a function is called from many places
+     and you need to know which caller is responsible, without stopping execution each time.</p>
+</section>
+
+<!-- 07 -->
+<section>
+  <h2><span class="num">07</span>Assert &amp; count</h2>
+  <p class="sub">Two APIs that stay quiet until they matter.</p>
+  <div class="demo">
+    <div class="row">
+      <button class="lab" id="as-pass">assert with a TRUE condition</button>
+      <button class="lab" id="as-fail">assert with a FALSE condition</button>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="lab" id="ct-count">console.count('render')</button>
+      <button class="lab" id="ct-reset">console.countReset('render')</button>
+    </div>
+    <div class="readout" id="as-out">idle</div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Click <b>assert with a TRUE condition</b>. <b>Nothing appears.</b> That is correct.
+          An assert logs only when the condition is <em>false</em>.</li>
+      <li>Click the FALSE one. Now you get an error-level line with your message.</li>
+      <li>Click <code>console.count('render')</code> five times. It prints
+          <code>render: 1</code> … <code>render: 5</code>.</li>
+      <li>Click <b>countReset</b>. <b>It prints nothing at all</b>. Then count again: back to
+          <code>render: 1</code>.</li>
+      <li><b>Now reload the page and click countReset FIRST</b>, before ever counting. This time
+          it <em>does</em> speak up: <code>Count for 'render' does not exist</code>, at warning
+          level. Resetting a counter that exists is silent; resetting one that never existed is not.</li>
+    </ol>
+  </div>
+  <p class="answer"><b><code>console.count()</code> is the cheapest re-render counter in React.</b>
+     One line inside the component body: no state, no extra render caused by the measurement
+     itself, and you get a hard number instead of an argument about whether memoisation works.</p>
+</section>
+
+<!-- 08 -->
+<section>
+  <h2><span class="num">08</span>Log vs dir</h2>
+  <p class="sub">Same element, two completely different outputs.</p>
+  <div class="demo">
+    <button class="buybtn" id="buy-btn" data-sku="SKU-42">Buy</button>
+    <div class="row" style="margin-top:12px">
+      <button class="lab" id="ld-both">Log it and dir it</button>
+      <button class="lab" id="ld-plain">Now do the same to a plain object</button>
+    </div>
+    <div class="readout" id="ld-out">idle</div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Click <b>Log it and dir it</b>. In the Console you get the same button twice:
+          <code>console.log()</code> renders it as <b>markup</b> you can expand like the DOM tree;
+          <code>console.dir()</code> renders it as an <b>HTMLButtonElement property bag</b>, with
+          <code>disabled</code>, <code>innerText</code>, <code>[[Prototype]]</code> and the rest.</li>
+      <li>Expand the <code>console.dir()</code> output and find <code>dataset</code>. It holds
+          <code>{sku: "SKU-42"}</code>, a thing you cannot read off the markup view.</li>
+      <li>Select the button in Elements, then run both by hand:
+          <code>console.log($0)</code> and <code>console.dir($0)</code>.</li>
+      <li>Now click <b>the same to a plain object</b>. The two outputs are near identical,
+          because a plain object has no markup representation to differ from.</li>
+    </ol>
+  </div>
+  <p class="answer"><b>The rule:</b> the distinction only exists for DOM nodes.
+     Reach for <code>console.dir()</code> when you want properties such as event handler flags, <code>dataset</code>,
+     <code>value</code> versus attribute, the prototype chain. Reach for <code>console.log()</code> when you
+     want to see structure.</p>
+</section>
+
+<!-- 09 -->
+<section>
+  <h2><span class="num">09</span>Filter &amp; search logs</h2>
+  <p class="sub">Four filter modes, and one that is not a filter at all.</p>
+  <div class="demo">
+    <button class="lab" id="fl-noise">Generate 20 mixed logs from two sources</button>
+    <div class="readout" id="fl-out">idle</div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Click the button. Twenty lines arrive, some from this page, some from an injected
+          <code>vendor-analytics.js</code>.</li>
+      <li><b>Plain text:</b> type <code>checkout</code> in the filter box.</li>
+      <li><b>By source:</b> type <code>url:vendor-analytics</code>. Only the third-party noise.
+          Then <code>-url:vendor-analytics</code> with a minus to <b>exclude</b> it and see only
+          your own logs. That minus is the one people never learn.</li>
+      <li><b>Regex:</b> type <code>/SKU-\d+/</code> to match any SKU.</li>
+      <li><b>Search, not filter:</b> clear the box, then press <kbd>Ctrl+F</kbd>. That searches
+          what is already printed and highlights hits without hiding anything else.</li>
+    </ol>
+  </div>
+  <div class="path"><b class="h">Filter vs search, different jobs</b>
+    <table class="ref">
+      <tr><th>Filter box</th><th>Ctrl+F</th></tr>
+      <tr><td><b>Hides</b> everything that does not match. Live, so new logs are filtered too.</td>
+          <td><b>Highlights</b> matches in what is already there. Nothing is hidden.</td></tr>
+    </table>
+  </div>
+  <p class="answer"><b><code>-url:</code> is the one to remember</b> on a real site. Third-party tags
+     produce most of the console noise, and excluding them by source is faster than trying to
+     describe your own logs.</p>
+</section>
+
+<!-- 10 -->
+<section>
+  <h2><span class="num">10</span>Style log output</h2>
+  <p class="sub"><code>%c</code> applies CSS to everything that follows it.</p>
+  <div class="demo">
+    <div class="row">
+      <button class="lab" id="cs-one">One styled label</button>
+      <button class="lab" id="cs-badge">A badge + plain text</button>
+      <button class="lab" id="cs-multi">Several %c segments</button>
+      <button class="lab" id="cs-fmt">The other format specifiers</button>
+    </div>
+    <div class="readout" id="cs-out">All output goes to the Console.</div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Click each button and read the Console. The code each button runs is in the box
+          below, ready to paste.</li>
+      <li><code>%c</code> consumes the <b>next argument</b> as a CSS string and applies it to
+          everything after that point in the message.</li>
+      <li>The badge example resets styling with a second <code>%c</code> and an empty string.
+          That is how you stop a style bleeding into the rest of the line.</li>
+      <li>The last button shows <code>%s</code> (string), <code>%d</code> (integer),
+          <code>%f</code> (float), then logs the <b>Buy</b> button from section 08 twice:
+          <code>%o</code> shows it as markup, <code>%O</code> as a property bag.</li>
+      <li>Paste snippet 5 into the Console, then call <code>logCart("hello")</code>. That helper
+          is the one worth keeping.</li>
+    </ol>
+  </div>
+  <div class="path"><b class="h">Syntax you can paste into any Console</b>
+    Every button above runs one of these. Copy a line into the Console on any site and it works.
+    <div class="snip-label">1. One styled label</div>
+<pre class="snip">console.log("%cPAYMENT", "color:#c00; font-weight:bold; font-size:14px");</pre>
+    <div class="snip-label">2. A badge, then plain text (the empty string resets the style)</div>
+<pre class="snip">console.log("%c CHECKOUT %c order #4120 created",
+  "background:#2E9E63; color:#fff; font-weight:bold; border-radius:3px; padding:2px 6px",
+  "");</pre>
+    <div class="snip-label">3. Several %c segments, one style argument each, in order</div>
+<pre class="snip">console.log("%cred %cgreen %cblue",
+  "color:#c00; font-weight:bold",
+  "color:#2E9E63; font-weight:bold",
+  "color:#2F6FE0; font-weight:bold");</pre>
+    <div class="snip-label">4. The other format specifiers</div>
+<pre class="snip">console.log("string %s | integer %d | float %f", "SKU-42", 7, 12.3456);
+
+const btn = document.querySelector("#buy-btn");
+console.log("%o", btn);   // a DOM node, shown as markup
+console.log("%O", btn);   // the same node, shown as a JS object</pre>
+    <p class="snip-note">%s string, %d or %i integer (decimals are dropped), %f float,
+      %o element as markup, %O always as a JS object, %c CSS.</p>
+    <div class="snip-label">5. Day-to-day: a reusable tagged logger</div>
+<pre class="snip">const tag = (name, bg) => (...args) =>
+  console.log(`%c ${name} `, `background:${bg}; color:#fff; border-radius:3px`, ...args);
+
+const logCart = tag("CART", "#2E9E63");
+const logPay  = tag("PAYMENT", "#c00");
+
+logCart("item added", { sku: "SKU-42", qty: 2 });
+logPay("authorised", { orderId: 4120 });</pre>
+    <p class="snip-note">Define it once near the top of a module. Every line from that subsystem
+      then carries the same badge, and objects after the label stay expandable.</p>
+  </div>
+  <p class="answer"><b>Use it sparingly, for labels only.</b> One coloured badge marking which
+     subsystem a line came from is genuinely useful. A rainbow console is harder to read than a
+     plain one, and none of it survives being copied into a ticket.</p>
+</section>
+
+<!-- 11 -->
+<section>
+  <h2><span class="num">11</span>Live expressions &amp; utilities</h2>
+  <p class="sub">Watch a value change without logging it on a loop.</p>
+  <div class="demo">
+    <div class="row">
+      <button class="lab" id="le-add">Add item to cart</button>
+      <button class="lab" id="le-remove">Remove item</button>
+      <span id="le-count" style="color:var(--ink3)">cart.items.length = 0</span>
+    </div>
+    <div class="readout" id="le-out">window.cart is a real global. Inspect it from the Console.</div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Click the <b>&#128065; eye icon</b> in the Console toolbar to create a live expression.
+          Type <code>cart.items.length</code> and press <kbd>Enter</kbd>.</li>
+      <li>It pins above the console and <b>updates on its own</b> as you click Add and Remove.
+          No logging, no loop.</li>
+      <li>Add a second live expression: <code>cart.total</code>.</li>
+      <li>Now the utilities. Type each one at the Console prompt (see the box below):
+          <code>copy(cart)</code> puts the whole object on your clipboard as JSON;
+          <code>monitorEvents($0, 'click')</code> logs every click on the selected element
+          (<code>unmonitorEvents($0)</code> stops it);
+          <code>inspect(document.getElementById('buy-btn'))</code> jumps Elements to that node.</li>
+      <li><code>$_</code> returns the last expression's value, handy after a long chain.</li>
+    </ol>
+  </div>
+  <div class="path"><b class="h">Where the "utilities" live</b>
+    There is no Utilities panel, menu or button. They are functions Chrome adds to the
+    <b>Console prompt</b> only, officially called the <b>Console Utilities API</b>. To use one:
+    <div style="margin:8px 0">
+      <span class="step">Console tab, or Esc for the drawer</span><span class="arrow">&rarr;</span>
+      <span class="step">click the &gt; prompt at the bottom</span><span class="arrow">&rarr;</span>
+      <span class="step">type copy(cart) and press Enter</span>
+    </div>
+    The full list is in Chrome's docs under "Console Utilities API reference"
+    (developer.chrome.com/docs/devtools/console/utilities).
+    <table class="ref">
+      <tr><th>Helper</th><th>Does</th></tr>
+      <tr><td><code>$0</code> to <code>$4</code></td><td>the last five elements you selected, newest first</td></tr>
+      <tr><td><code>$('sel')</code> / <code>$$('sel')</code></td>
+          <td><code>querySelector</code> / <code>querySelectorAll</code> as a real Array</td></tr>
+      <tr><td><code>copy(x)</code></td><td>puts <code>x</code> on the clipboard</td></tr>
+      <tr><td><code>inspect(el)</code></td><td>selects <code>el</code> in Elements</td></tr>
+      <tr><td><code>monitorEvents(el, 'click')</code></td><td>logs matching events until you unmonitor</td></tr>
+      <tr><td><code>$_</code></td><td>the last evaluated value</td></tr>
+    </table>
+    <div style="margin-top:8px">All of these exist <b>only in the Console</b>. Put them in page
+      code and you get a <code>ReferenceError</code>. Also, if a site defines its own
+      <code>$</code> (jQuery does), the page's version wins over the Console one.</div>
+  </div>
+</section>
+
+<!-- 12 -->
+<section>
+  <h2><span class="num">12</span>Logging hygiene</h2>
+  <p class="sub">The card that is not about convenience.</p>
+  <div class="demo">
+    <div class="row">
+      <button class="lab" id="hy-start">Start a fake session recorder</button>
+      <button class="lab danger" id="hy-leak">Log a token the careless way</button>
+      <button class="lab" id="hy-safe">Log it the safe way</button>
+    </div>
+    <div class="readout" id="hy-out">Recorder is off. Start it, then click the other two.</div>
+  </div>
+  <div class="try"><b class="h">Try this</b>
+    <ol>
+      <li>Click <b>Start a fake session recorder</b>. It wraps <code>console.log()</code> the same way
+          a session-replay or error-monitoring SDK does. A few lines of code, nothing exotic.</li>
+      <li>Click <b>Log a token the careless way</b>. Look at the capture box: the bearer token and
+          the password are now sitting in the recorder's buffer.</li>
+      <li>Click <b>Log it the safe way</b> and compare. Same debugging value, nothing sensitive.</li>
+      <li>In a real app that buffer is uploaded to a third party. Nothing in the Console warns you.</li>
+    </ol>
+  </div>
+  <p class="answer"><b>This is the part most people underrate.</b> "Don't log passwords" reads as
+     obvious advice everyone has internalised. The non-obvious half is that console output does not
+     stay in your browser. Session-replay and error-monitoring tools capture it by default, so a
+     token you logged "just to check" leaves your origin and lands in someone else's storage, under
+     their retention policy rather than yours.</p>
+  <p class="answer"><b>Practical rule:</b> log identifiers, not identities. An order ID, a
+     correlation ID and a user <em>role</em> are all safe and all useful. An email address, a token
+     or a full name is none of those things.</p>
+</section>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  console.log("%c Console & Logging Lab ", "background:#2E9E63;color:#fff;font-weight:700",
+              "Part 4, page ready. Keep the Console open.");
+
+  /* ---- 01 : levels ---- */
+  $("lv-all").addEventListener("click", () => {
+    console.debug("console.debug()  Verbose level. Hidden unless you enable it.");
+    console.log("console.log()    Info level.");
+    console.info("console.info()   Also Info level. Same bucket as console.log().");
+    console.warn("console.warn()   Warnings level.");
+    console.error("console.error()  Errors level.");
+    $("lv-out").textContent =
+      "Fired 5 calls: debug, log, info, warn, error.\n" +
+      "Count the lines in the Console. Four? The level dropdown is on Default,\n" +
+      "which excludes Verbose, so console.debug() is hidden.";
+  });
+  $("lv-clear").addEventListener("click", () => { console.clear(); });
+
+  /* ---- 02 : structured logging ---- */
+  const IDS = ["req-7f3", "req-2a1", "req-9c4"];
+  $("st-prose").addEventListener("click", () => {
+    console.log("User added SKU-42 to the cart on the checkout page and it worked fine");
+    $("st-out").textContent = "Logged as prose. A word search finds it, but there is no request ID in it to follow.";
+  });
+  $("st-obj").addEventListener("click", () => {
+    console.log({ event: "cart_add", productId: "SKU-42", qty: 2,
+                  step: "checkout", correlationId: "req-7f3" });
+    $("st-out").textContent = "Logged as an object. Expandable, and every field is there every time.";
+  });
+  $("st-many").addEventListener("click", () => {
+    const steps = ["cart_add", "address_set", "payment_start",
+                   "payment_ok", "order_created", "confirmation_shown"];
+    steps.forEach((step, i) => {
+      console.log({ event: step, step: i + 1,
+                    productId: "SKU-" + (40 + (i % 3)),
+                    correlationId: IDS[i % IDS.length] });
+    });
+    $("st-out").textContent =
+      "6 events logged across 3 correlation IDs.\n" +
+      "Filter the Console by  req-7f3  to follow one request only.";
+  });
+
+  /* ---- 03 : console.table ---- */
+  const PRODUCTS = [
+    { id: 1, name: "Laptop",   status: "in_stock",     price: 1299, warehouse: "BLR-1" },
+    { id: 2, name: "Mouse",    status: "in_stock",     price: 29,   warehouse: "BLR-1" },
+    { id: 3, name: "Keyboard", status: "out_of_stock", price: 89,   warehouse: "HYD-2" }
+  ];
+  $("tb-all").addEventListener("click", () => {
+    console.table(PRODUCTS);
+    $("tb-out").textContent = "console.table(products). Note the leading (index) column: 0,1,2.";
+  });
+  $("tb-cols").addEventListener("click", () => {
+    console.table(PRODUCTS, ["name", "status"]);
+    $("tb-out").textContent = "console.table(products, ['name','status']). Only those columns.";
+  });
+  $("tb-obj").addEventListener("click", () => {
+    console.table({ blr: { region: "south", orders: 412 },
+                    hyd: { region: "south", orders: 88 },
+                    del: { region: "north", orders: 230 } });
+    $("tb-out").textContent = "Object of objects. Now (index) holds the keys, not numbers.";
+  });
+
+  /* ---- 04 : groups ---- */
+  $("gr-open").addEventListener("click", () => {
+    console.group("Checkout. console.group(), starts OPEN");
+    console.log("cart       2 items");
+    console.log("shipping   address selected");
+    console.groupEnd();
+    $("gr-out").textContent = "console.group() starts expanded.";
+  });
+  $("gr-collapsed").addEventListener("click", () => {
+    console.groupCollapsed("Checkout. console.groupCollapsed(), starts CLOSED");
+    console.log("cart       2 items");
+    console.log("shipping   address selected");
+    console.log("payment    successful");
+    console.groupEnd();
+    $("gr-out").textContent = "console.groupCollapsed() starts closed. Click the arrow.";
+  });
+  $("gr-nested").addEventListener("click", () => {
+    console.groupCollapsed("Order flow");
+    console.log("started");
+    console.groupCollapsed("  Payment");
+    console.log("gateway: stripe");
+    console.groupCollapsed("    Retry");
+    console.warn("attempt 2 of 3");
+    console.groupEnd();
+    console.groupEnd();
+    console.log("finished");
+    console.groupEnd();
+    $("gr-out").textContent = "Three levels deep. Each console.group() needs its own console.groupEnd().";
+  });
+
+  /* ---- 05 : timers ---- */
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  $("tm-run").addEventListener("click", async (e) => {
+    e.target.disabled = true;
+    $("tm-out").textContent = "running…";
+    console.time("checkout");
+    await wait(180);
+    console.timeLog("checkout", "stage 1, cart validated");
+    await wait(320);
+    console.timeLog("checkout", "stage 2, payment authorised");
+    await wait(140);
+    console.timeEnd("checkout");
+    $("tm-out").textContent =
+      "Done. The Console shows two console.timeLog() readings and one console.timeEnd() total.\n" +
+      "console.timeLog() prints elapsed time WITHOUT stopping the timer.";
+    e.target.disabled = false;
+  });
+  $("tm-typo").addEventListener("click", () => {
+    console.timeEnd("chekout");
+    $("tm-out").textContent =
+      "Called console.timeEnd('chekout'). No timer has that label, so Chrome logs a warning instead of a time.";
+  });
+
+  /* ---- 06 : trace ---- */
+  function handleClick()  { return updateCart(); }
+  function updateCart()   { return addToCart(); }
+  function addToCart()    { console.trace("trace: who called addToCart?"); return true; }
+  $("tr-run").addEventListener("click", () => {
+    handleClick();
+    $("tr-out").textContent =
+      "Traced. The Console shows it already expanded: addToCart, updateCart, handleClick, (anonymous).\n" +
+      "Innermost frame first, one flat list.";
+  });
+
+  /* ---- 07 : assert & count ---- */
+  $("as-pass").addEventListener("click", () => {
+    const total = 120;
+    console.assert(total >= 0, "Negative total:", total);
+    $("as-out").textContent =
+      "assert(total >= 0) with total = 120.\nCondition is TRUE, so the Console stays silent. Correct.";
+  });
+  $("as-fail").addEventListener("click", () => {
+    const total = -40;
+    console.assert(total >= 0, "Negative total:", total);
+    $("as-out").textContent =
+      "assert(total >= 0) with total = -40.\nCondition is FALSE, so it logs at error level.";
+  });
+  let counted = false;
+  $("ct-count").addEventListener("click", () => {
+    console.count("render");
+    counted = true;
+    $("as-out").textContent = "console.count('render'). The Console shows render: 1, 2, 3…";
+  });
+  $("ct-reset").addEventListener("click", () => {
+    const existed = counted;
+    console.countReset("render");
+    counted = false;
+    $("as-out").textContent = existed
+      ? "console.countReset('render') prints NOTHING.\n" +
+        "The counter existed, so it resets silently. Next count starts at 1."
+      : "console.countReset('render') on a counter that was never counted.\n" +
+        "This one DOES log, at warning level: \"Count for 'render' does not exist\".\n" +
+        "Click count a few times, then reset again, to see the silent version.";
+  });
+
+  /* ---- 08 : log vs dir ---- */
+  $("ld-both").addEventListener("click", () => {
+    const btn = $("buy-btn");
+    console.log("%cconsole.log(button): markup view", "font-weight:bold");
+    console.log(btn);
+    console.log("%cconsole.dir(button): property bag", "font-weight:bold");
+    console.dir(btn);
+    $("ld-out").textContent =
+      "Both logged. console.log() gives expandable markup; console.dir() gives HTMLButtonElement\n" +
+      "with disabled, innerText, dataset, [[Prototype]] and the rest.";
+  });
+  $("ld-plain").addEventListener("click", () => {
+    const plain = { id: 42, name: "Laptop", tags: ["new", "sale"] };
+    console.log("%cconsole.log(plainObject)", "font-weight:bold");
+    console.log(plain);
+    console.log("%cconsole.dir(plainObject)", "font-weight:bold");
+    console.dir(plain);
+    $("ld-out").textContent =
+      "Near-identical output. A plain object has no markup form,\n" +
+      "so there is nothing for the two views to disagree about.";
+  });
+
+  /* ---- 09 : filter noise, from two sources ---- */
+  const vendorSrc = [
+    "// vendor-analytics.js, a stand-in for a third-party tag.",
+    "window.vendorNoise = function vendorNoise(n) {",
+    "  for (var i = 0; i < n; i++) {",
+    "    console.log('[analytics] beacon ' + i + ' queued for SKU-' + (40 + i % 3));",
+    "  }",
+    "};",
+    "//# sourceURL=vendor-analytics.js"
+  ].join("\n");
+  const vs = document.createElement("script");
+  vs.src = URL.createObjectURL(new Blob([vendorSrc], { type: "text/javascript" }));
+  document.head.appendChild(vs);
+
+  $("fl-noise").addEventListener("click", () => {
+    for (let i = 0; i < 10; i++) {
+      console.log("[app] checkout step " + i + " for SKU-" + (40 + (i % 3)));
+    }
+    if (typeof window.vendorNoise === "function") { window.vendorNoise(10); }
+    else { console.warn("vendor-analytics.js not loaded yet, click again"); }
+    $("fl-out").textContent =
+      "20 lines logged from two sources.\n" +
+      "Try:  checkout   ·   url:vendor-analytics   ·   -url:vendor-analytics   ·   /SKU-\\d+/";
+  });
+
+  /* ---- 10 : %c and format specifiers ---- */
+  $("cs-one").addEventListener("click", () => {
+    console.log("%cPAYMENT", "color:#c00; font-weight:bold; font-size:14px");
+    $("cs-out").textContent = 'console.log("%cPAYMENT", "color:#c00; font-weight:bold; font-size:14px");';
+  });
+  $("cs-badge").addEventListener("click", () => {
+    console.log("%c CHECKOUT %c order #4120 created",
+      "background:#2E9E63;color:#fff;font-weight:bold;border-radius:3px;padding:2px 6px", "");
+    $("cs-out").textContent =
+      'console.log("%c CHECKOUT %c order #4120 created", "background:#2E9E63; color:#fff; ...", "");\n' +
+      'The second %c takes an EMPTY style string. That resets, so the badge colour does not bleed.';
+  });
+  $("cs-multi").addEventListener("click", () => {
+    console.log("%cred %cgreen %cblue",
+      "color:#c00;font-weight:bold", "color:#2E9E63;font-weight:bold", "color:#2F6FE0;font-weight:bold");
+    $("cs-out").textContent =
+      'console.log("%cred %cgreen %cblue", "color:#c00", "color:#2E9E63", "color:#2F6FE0");\n' +
+      'Each %c consumes the next argument and restyles everything after it.';
+  });
+  $("cs-fmt").addEventListener("click", () => {
+    console.log("string %s | integer %d | float %f", "SKU-42", 7, 12.3456);
+    const btn = document.querySelector("#buy-btn");
+    console.log("%o", btn);
+    console.log("%O", btn);
+    $("cs-out").textContent =
+      'console.log("string %s | integer %d | float %f", "SKU-42", 7, 12.3456);\n' +
+      'console.log("%o", btn);   // markup\n' +
+      'console.log("%O", btn);   // JS object';
+  });
+
+  /* ---- 11 : live expressions ---- */
+  window.cart = { items: [], total: 0 };
+  function renderCart() {
+    $("le-count").textContent = "cart.items.length = " + window.cart.items.length;
+  }
+  $("le-add").addEventListener("click", () => {
+    window.cart.items.push({ sku: "SKU-" + (40 + window.cart.items.length), price: 29 });
+    window.cart.total = window.cart.items.reduce((s, i) => s + i.price, 0);
+    renderCart();
+  });
+  $("le-remove").addEventListener("click", () => {
+    window.cart.items.pop();
+    window.cart.total = window.cart.items.reduce((s, i) => s + i.price, 0);
+    renderCart();
+  });
+  renderCart();
+
+  /* ---- 12 : hygiene, a fake session recorder ---- */
+  let captured = [], recording = false, originalLog = null;
+  function renderCapture() {
+    $("hy-out").textContent =
+      (recording ? "RECORDER: ON. Every console.log is being captured\n\n"
+                 : "RECORDER: OFF\n\n") +
+      (captured.length
+        ? "Captured buffer (this is what gets uploaded):\n" +
+          captured.map((l, i) => "  " + (i + 1) + ". " + l).join("\n")
+        : "Buffer empty.");
+  }
+  $("hy-start").addEventListener("click", (e) => {
+    if (recording) {
+      console.log = originalLog; recording = false;
+      e.target.textContent = "Start a fake session recorder";
+      e.target.classList.remove("on");
+    } else {
+      originalLog = console.log;
+      console.log = function () {
+        captured.push(Array.from(arguments)
+          .map((a) => (typeof a === "object" ? JSON.stringify(a) : String(a))).join(" "));
+        renderCapture();
+        return originalLog.apply(console, arguments);
+      };
+      recording = true;
+      e.target.textContent = "Stop the recorder";
+      e.target.classList.add("on");
+    }
+    renderCapture();
+  });
+  $("hy-leak").addEventListener("click", () => {
+    console.log("login ok", { user: "shrikanth@example.com", password: "hunter2",
+                              token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.demo" });
+  });
+  $("hy-safe").addEventListener("click", () => {
+    console.log("login ok", { userId: "u_88213", role: "admin",
+                              tokenPresent: true, correlationId: "req-7f3" });
+  });
+  renderCapture();
+})();
+</script>
+</body>
+</html>
